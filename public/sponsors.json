@@ -1,0 +1,40 @@
+{
+    "sponsors": [
+        {
+            "id": "which-wich-ripley",
+            "name": "Which Wich Ripley",
+            "imageUrl": "https://mississippisportsapp.com/sponsors/which-wich-ripley.jpg",
+            "tapUrl": "https://www.bing.com/maps/directions?ty=0&v=2&sV=1&rtp=%7Epos.34.73171615600586_-88.92440795898438__Which%2520Wich_&mode=d&cp=34.731716%7E-88.924408&lvl=16&style=r",
+            "tagline": "Get YOUR Wich On!",
+            "active": true,
+            "sortOrder": 1
+        },
+        {
+            "id": "casey-lott",
+            "name": "Attorney Casey Lott",
+            "imageUrl": "https://mississippisportsapp.com/sponsors/casey-lott.jpg",
+            "tapUrl": "https://langstonlott.com/",
+            "tagline": "Injury Law — 662-888-8888",
+            "active": true,
+            "sortOrder": 2
+        },
+        {
+            "id": "peoples-bank",
+            "name": "The Peoples Bank",
+            "imageUrl": "https://mississippisportsapp.com/sponsors/peoples-bank.png",
+            "tapUrl": "https://peoplesripley.com/",
+            "tagline": "Are you a Peoples Person?",
+            "active": true,
+            "sortOrder": 3
+        },
+        {
+            "id": "in-house-ad",
+            "name": "Your Ad Here",
+            "imageUrl": "https://mississippisportsapp.com/sponsors/in-house-ad.png",
+            "tapUrl": "https://mississippisportsapp.com/#contact",
+            "tagline": "Advertise with Mississippi Sports App",
+            "active": true,
+            "sortOrder": 4
+        }
+    ]
+}

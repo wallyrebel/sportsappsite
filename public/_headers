@@ -1,0 +1,9 @@
+# Sponsors feed — short cache so app picks up changes quickly
+/sponsors.json
+  Cache-Control: public, max-age=60, s-maxage=60
+  Access-Control-Allow-Origin: *
+
+# Sponsor images — cache longer since they change rarely
+/sponsors/*
+  Cache-Control: public, max-age=86400, s-maxage=86400
+  Access-Control-Allow-Origin: *
