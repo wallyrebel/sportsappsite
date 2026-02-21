@@ -20,7 +20,7 @@ async function sendEmailNotification(
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                from: 'Mississippi Sports Contact <onboarding@resend.dev>',
+                from: 'Mississippi Sports Contact <contact@mississippisportsapp.com>',
                 to: ['editor@sportsmississippi.com'],
                 subject: `New Contact Form: ${submission.name}`,
                 html: `
