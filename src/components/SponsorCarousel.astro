@@ -25,8 +25,7 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
     </div>
     <div class="sponsor-carousel" aria-label="Sponsors">
       <div class="sponsor-track" id="sponsor-track">
-        {/* Render sponsors twice for seamless infinite loop */}
-        {[...sponsors, ...sponsors].map((sponsor, i) => (
+        {sponsors.map((sponsor, i) => (
           <a
             href={sponsor.tapUrl}
             target="_blank"
@@ -38,7 +37,7 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
               src={sponsor.imageUrl}
               alt={sponsor.name}
               class="sponsor-img"
-              loading={i < sponsors.length ? "eager" : "lazy"}
+              loading="eager"
               width="400"
               height="150"
             />
@@ -89,7 +88,6 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
 
   .sponsor-track {
     display: flex;
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     will-change: transform;
   }
 
@@ -162,34 +160,47 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
     const dots = document.querySelectorAll('.sponsor-dot');
     if (!track || dots.length === 0) return;
 
+    const carousel = track.parentElement as HTMLElement;
     const totalSponsors = dots.length;
     let currentIndex = 0;
     let autoPlayTimer: ReturnType<typeof setInterval>;
     let isHovered = false;
 
-    function goToSlide(index: number) {
+    function getSlideWidth(): number {
+      return carousel.offsetWidth;
+    }
+
+    function goToSlide(index: number, animate = true) {
       currentIndex = index;
-      const offset = -(currentIndex * 100);
-      track.style.transform = `translateX(${offset}%)`;
+      const offset = -(currentIndex * getSlideWidth());
+
+      if (animate) {
+        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+      } else {
+        track.style.transition = 'none';
+      }
+
+      track.style.transform = `translateX(${offset}px)`;
 
       dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex % totalSponsors);
+        dot.classList.toggle('active', i === currentIndex);
       });
     }
 
     function nextSlide() {
-      const nextIndex = currentIndex + 1;
-      if (nextIndex >= totalSponsors * 2) {
-        // Jump back to the clone start without animation
-        track.style.transition = 'none';
-        currentIndex = 0;
-        track.style.transform = `translateX(0%)`;
-        // Force reflow
-        track.offsetHeight;
-        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        setTimeout(() => goToSlide(1), 50);
+      if (currentIndex >= totalSponsors - 1) {
+        // We're on the last slide — fade-reset to first
+        goToSlide(0, true);
       } else {
-        goToSlide(nextIndex);
+        goToSlide(currentIndex + 1, true);
+      }
+    }
+
+    function prevSlide() {
+      if (currentIndex <= 0) {
+        goToSlide(totalSponsors - 1, true);
+      } else {
+        goToSlide(currentIndex - 1, true);
       }
     }
 
@@ -207,7 +218,7 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
     // Dot click navigation
     dots.forEach((dot, i) => {
       dot.addEventListener('click', () => {
-        goToSlide(i);
+        goToSlide(i, true);
         startAutoPlay(); // Reset timer on manual nav
       });
     });
@@ -221,23 +232,30 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
 
     // Touch swipe support
     let touchStartX = 0;
-    let touchEndX = 0;
     track.addEventListener('touchstart', (e: TouchEvent) => {
       touchStartX = e.changedTouches[0].screenX;
     }, { passive: true });
     track.addEventListener('touchend', (e: TouchEvent) => {
-      touchEndX = e.changedTouches[0].screenX;
+      const touchEndX = e.changedTouches[0].screenX;
       const diff = touchStartX - touchEndX;
       if (Math.abs(diff) > 50) {
         if (diff > 0) {
           nextSlide();
         } else {
-          const prevIndex = currentIndex - 1;
-          goToSlide(prevIndex < 0 ? totalSponsors - 1 : prevIndex);
+          prevSlide();
         }
         startAutoPlay();
       }
     }, { passive: true });
+
+    // Recalculate position on window resize
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        goToSlide(currentIndex, false);
+      }, 100);
+    });
 
     // Start
     startAutoPlay();
