@@ -1,9 +1,53 @@
 // Cloudflare Pages Function: POST /api/contact
 // Handles contact form submissions with file upload support
 // Stores submissions as JSON in Cloudflare R2
+// Sends email notification via Resend (free tier: 100/day)
 
 interface Env {
-    CONTACT_BUCKET: R2Bucket; // Bind your R2 bucket in Cloudflare Pages settings
+    CONTACT_BUCKET: R2Bucket;
+    RESEND_API_KEY: string; // Set in Cloudflare Pages env vars
+}
+
+async function sendEmailNotification(
+    apiKey: string,
+    submission: { name: string; email: string; message: string; attachment: string | null; timestamp: string }
+) {
+    try {
+        const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from: 'Mississippi Sports Contact <onboarding@resend.dev>',
+                to: ['editor@sportsmississippi.com'],
+                subject: `New Contact Form: ${submission.name}`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <div style="background: #0a1628; padding: 20px; border-radius: 8px 8px 0 0;">
+                            <h2 style="color: #d4a843; margin: 0;">New Contact Form Submission</h2>
+                        </div>
+                        <div style="background: #f8f9fb; padding: 24px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
+                            <p style="margin: 0 0 16px;"><strong>From:</strong> ${submission.name}</p>
+                            <p style="margin: 0 0 16px;"><strong>Email:</strong> <a href="mailto:${submission.email}">${submission.email}</a></p>
+                            <p style="margin: 0 0 8px;"><strong>Message:</strong></p>
+                            <div style="background: white; padding: 16px; border-radius: 6px; border: 1px solid #e5e7eb; white-space: pre-wrap;">${submission.message}</div>
+                            ${submission.attachment ? `<p style="margin: 16px 0 0; color: #6b7280; font-size: 14px;">📎 Image attachment included (check R2 bucket)</p>` : ''}
+                            <p style="margin: 16px 0 0; color: #9ca3af; font-size: 12px;">Sent: ${submission.timestamp}</p>
+                        </div>
+                    </div>
+                `,
+            }),
+        });
+
+        if (!response.ok) {
+            console.error('Resend API error:', await response.text());
+        }
+    } catch (err) {
+        console.error('Email notification failed:', err);
+        // Don't fail the form submission if email fails
+    }
 }
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
@@ -53,7 +97,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         // Handle file upload
         let attachmentKey: string | null = null;
         if (attachment && attachment.size > 0) {
-            // Limit file size to 5MB
             if (attachment.size > 5 * 1024 * 1024) {
                 return new Response(
                     JSON.stringify({ error: 'File size must be under 5MB.' }),
@@ -61,7 +104,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 );
             }
 
-            // Only allow image types
             if (!attachment.type.startsWith('image/')) {
                 return new Response(
                     JSON.stringify({ error: 'Only image files are allowed.' }),
@@ -79,7 +121,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 });
             } catch (err) {
                 console.error('R2 upload failed:', err);
-                // Continue without attachment
                 attachmentKey = null;
             }
         }
@@ -111,6 +152,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
                 JSON.stringify({ error: 'Failed to save submission. Please email us directly.' }),
                 { status: 500, headers: { 'Content-Type': 'application/json' } }
             );
+        }
+
+        // Send email notification (non-blocking — don't fail submission if email fails)
+        if (env.RESEND_API_KEY) {
+            await sendEmailNotification(env.RESEND_API_KEY, {
+                name,
+                email,
+                message,
+                attachment: attachmentKey,
+                timestamp,
+            });
         }
 
         return new Response(
