@@ -19,13 +19,13 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
 ---
 
 {sponsors.length > 0 && (
-  <div class="sponsor-carousel-wrapper animate-on-scroll" id="sponsors">
+  <div class="sponsor-carousel-wrapper animate-on-scroll" data-sponsor-carousel>
     <div class="sponsor-carousel-header">
       <span class="sponsor-label">Our Sponsors</span>
     </div>
     <div class="sponsor-carousel" aria-label="Sponsors">
-      <div class="sponsor-track" id="sponsor-track">
-        {sponsors.map((sponsor, i) => (
+      <div class="sponsor-track">
+        {sponsors.map((sponsor) => (
           <a
             href={sponsor.tapUrl}
             target="_blank"
@@ -45,8 +45,7 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
         ))}
       </div>
     </div>
-    <!-- Navigation dots -->
-    <div class="sponsor-dots" id="sponsor-dots">
+    <div class="sponsor-dots">
       {sponsors.map((_, i) => (
         <button
           class={`sponsor-dot ${i === 0 ? 'active' : ''}`}
@@ -113,7 +112,7 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
     height: auto;
     object-fit: contain;
     border-radius: 0.5rem;
-    transition: transform 0.3s ease, filter 0.3s ease;
+    transition: transform 0.3s ease;
   }
 
   .sponsor-slide:hover .sponsor-img {
@@ -156,108 +155,97 @@ const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const track = document.getElementById('sponsor-track');
-    const dots = document.querySelectorAll('.sponsor-dot');
-    if (!track || dots.length === 0) return;
+    // Initialize EACH carousel instance independently
+    const carousels = document.querySelectorAll('[data-sponsor-carousel]');
 
-    const carousel = track.parentElement as HTMLElement;
-    const totalSponsors = dots.length;
-    let currentIndex = 0;
-    let autoPlayTimer: ReturnType<typeof setInterval>;
-    let isHovered = false;
+    carousels.forEach((wrapper) => {
+      const track = wrapper.querySelector('.sponsor-track') as HTMLElement;
+      const carousel = wrapper.querySelector('.sponsor-carousel') as HTMLElement;
+      const dots = wrapper.querySelectorAll('.sponsor-dot');
+      if (!track || !carousel || dots.length === 0) return;
 
-    function getSlideWidth(): number {
-      return carousel.offsetWidth;
-    }
+      const totalSponsors = dots.length;
+      let currentIndex = 0;
+      let autoPlayTimer: ReturnType<typeof setInterval>;
+      let isHovered = false;
 
-    function goToSlide(index: number, animate = true) {
-      currentIndex = index;
-      const offset = -(currentIndex * getSlideWidth());
-
-      if (animate) {
-        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-      } else {
-        track.style.transition = 'none';
+      function getSlideWidth(): number {
+        return carousel.offsetWidth;
       }
 
-      track.style.transform = `translateX(${offset}px)`;
+      function goToSlide(index: number, animate = true) {
+        currentIndex = index;
+        const offset = -(currentIndex * getSlideWidth());
 
+        if (animate) {
+          track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        } else {
+          track.style.transition = 'none';
+        }
+
+        track.style.transform = `translateX(${offset}px)`;
+
+        dots.forEach((dot, i) => {
+          dot.classList.toggle('active', i === currentIndex);
+        });
+      }
+
+      function nextSlide() {
+        const next = (currentIndex + 1) % totalSponsors;
+        goToSlide(next, true);
+      }
+
+      function prevSlide() {
+        const prev = (currentIndex - 1 + totalSponsors) % totalSponsors;
+        goToSlide(prev, true);
+      }
+
+      function startAutoPlay() {
+        stopAutoPlay();
+        autoPlayTimer = setInterval(() => {
+          if (!isHovered) nextSlide();
+        }, 4000);
+      }
+
+      function stopAutoPlay() {
+        if (autoPlayTimer) clearInterval(autoPlayTimer);
+      }
+
+      // Dot click navigation
       dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentIndex);
+        dot.addEventListener('click', () => {
+          goToSlide(i, true);
+          startAutoPlay();
+        });
       });
-    }
 
-    function nextSlide() {
-      if (currentIndex >= totalSponsors - 1) {
-        // We're on the last slide — fade-reset to first
-        goToSlide(0, true);
-      } else {
-        goToSlide(currentIndex + 1, true);
-      }
-    }
-
-    function prevSlide() {
-      if (currentIndex <= 0) {
-        goToSlide(totalSponsors - 1, true);
-      } else {
-        goToSlide(currentIndex - 1, true);
-      }
-    }
-
-    function startAutoPlay() {
-      stopAutoPlay();
-      autoPlayTimer = setInterval(() => {
-        if (!isHovered) nextSlide();
-      }, 4000);
-    }
-
-    function stopAutoPlay() {
-      if (autoPlayTimer) clearInterval(autoPlayTimer);
-    }
-
-    // Dot click navigation
-    dots.forEach((dot, i) => {
-      dot.addEventListener('click', () => {
-        goToSlide(i, true);
-        startAutoPlay(); // Reset timer on manual nav
-      });
-    });
-
-    // Pause on hover
-    const wrapper = track.closest('.sponsor-carousel-wrapper');
-    if (wrapper) {
+      // Pause on hover
       wrapper.addEventListener('mouseenter', () => { isHovered = true; });
       wrapper.addEventListener('mouseleave', () => { isHovered = false; });
-    }
 
-    // Touch swipe support
-    let touchStartX = 0;
-    track.addEventListener('touchstart', (e: TouchEvent) => {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
-    track.addEventListener('touchend', (e: TouchEvent) => {
-      const touchEndX = e.changedTouches[0].screenX;
-      const diff = touchStartX - touchEndX;
-      if (Math.abs(diff) > 50) {
-        if (diff > 0) {
-          nextSlide();
-        } else {
-          prevSlide();
+      // Touch swipe support
+      let touchStartX = 0;
+      track.addEventListener('touchstart', (e: TouchEvent) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+      track.addEventListener('touchend', (e: TouchEvent) => {
+        const touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 50) {
+          diff > 0 ? nextSlide() : prevSlide();
+          startAutoPlay();
         }
-        startAutoPlay();
-      }
-    }, { passive: true });
+      }, { passive: true });
 
-    // Recalculate position on window resize
-    let resizeTimer: ReturnType<typeof setTimeout>;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        goToSlide(currentIndex, false);
-      }, 100);
+      // Recalculate on resize
+      let resizeTimer: ReturnType<typeof setTimeout>;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => goToSlide(currentIndex, false), 100);
+      });
+
+      // Start
+      startAutoPlay();
     });
-
-    // Start
-    startAutoPlay();
   });
 </script>
