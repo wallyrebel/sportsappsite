@@ -1,4 +1,3 @@
-import Parser from 'rss-parser';
 import feedsData from '../data/feeds.json';
 
 export interface FeedItem {
@@ -21,19 +20,44 @@ interface FeedConfig {
 const DEFAULT_IMAGE = '/default-article.jpg';
 const FETCH_TIMEOUT = 8000;
 
-function extractImage(item: any): string | null {
-    // Try media:content
-    if (item['media:content']?.$.url) return item['media:content'].$.url;
-    // Try media:thumbnail
-    if (item['media:thumbnail']?.$.url) return item['media:thumbnail'].$.url;
-    // Try enclosure
-    if (item.enclosure?.url && item.enclosure.type?.startsWith('image')) return item.enclosure.url;
-    // Try content:encoded or content for <img> tag
-    const content = item['content:encoded'] || item.content || '';
+function getTagContent(xml: string, tag: string): string {
+    // Handle CDATA sections
+    const cdataRegex = new RegExp(`<${tag}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*</${tag}>`, 'i');
+    const cdataMatch = xml.match(cdataRegex);
+    if (cdataMatch) return cdataMatch[1].trim();
+
+    const regex = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, 'i');
+    const match = xml.match(regex);
+    return match ? match[1].trim() : '';
+}
+
+function getAttr(xml: string, tag: string, attr: string): string {
+    const tagRegex = new RegExp(`<${tag}[^>]*${attr}=["']([^"']+)["'][^>]*/?>`, 'i');
+    const match = xml.match(tagRegex);
+    return match ? match[1] : '';
+}
+
+function extractImage(itemXml: string): string | null {
+    // media:content url
+    const mediaContent = getAttr(itemXml, 'media:content', 'url');
+    if (mediaContent) return mediaContent;
+
+    // media:thumbnail url
+    const mediaThumbnail = getAttr(itemXml, 'media:thumbnail', 'url');
+    if (mediaThumbnail) return mediaThumbnail;
+
+    // enclosure with image type
+    const enclosureType = getAttr(itemXml, 'enclosure', 'type');
+    if (enclosureType.startsWith('image')) {
+        const enclosureUrl = getAttr(itemXml, 'enclosure', 'url');
+        if (enclosureUrl) return enclosureUrl;
+    }
+
+    // img tag in content:encoded or description
+    const content = getTagContent(itemXml, 'content:encoded') || getTagContent(itemXml, 'description');
     const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
     if (imgMatch?.[1]) return imgMatch[1];
-    // Try itunes:image
-    if (item['itunes:image']?.$.href) return item['itunes:image'].$.href;
+
     return null;
 }
 
@@ -46,41 +70,75 @@ function stripHtml(html: string): string {
         .replace(/&gt;/g, '>')
         .replace(/&quot;/g, '"')
         .replace(/&#39;/g, "'")
+        .replace(/&hellip;/g, '…')
         .replace(/\s+/g, ' ')
         .trim();
 }
 
-function createExcerpt(item: any): string {
-    const raw = item.contentSnippet || item['content:encodedSnippet'] || item.content || item.summary || '';
+function createExcerpt(itemXml: string): string {
+    const description = getTagContent(itemXml, 'description');
+    const content = getTagContent(itemXml, 'content:encoded');
+    const raw = description || content || '';
     const clean = stripHtml(raw);
     if (clean.length <= 160) return clean;
     return clean.substring(0, 157).replace(/\s+\S*$/, '') + '...';
 }
 
-async function fetchFeed(feed: FeedConfig): Promise<FeedItem[]> {
-    const parser = new Parser({
-        timeout: FETCH_TIMEOUT,
-        customFields: {
-            item: [
-                ['media:content', 'media:content'],
-                ['media:thumbnail', 'media:thumbnail'],
-                ['content:encoded', 'content:encoded'],
-            ],
-        },
-    });
+function parseItems(xml: string, feed: FeedConfig): FeedItem[] {
+    const items: FeedItem[] = [];
+    const itemRegex = /<item>([\s\S]*?)<\/item>/gi;
+    let match;
 
-    try {
-        const parsed = await parser.parseURL(feed.url);
-        return (parsed.items || []).map((item: any) => ({
-            title: item.title?.trim() || 'Untitled',
-            link: item.link || '#',
-            pubDate: item.pubDate || item.isoDate || new Date().toISOString(),
-            isoDate: item.isoDate || new Date(item.pubDate || Date.now()).toISOString(),
-            excerpt: createExcerpt(item),
-            image: extractImage(item),
+    while ((match = itemRegex.exec(xml)) !== null) {
+        const itemXml = match[1];
+        const title = stripHtml(getTagContent(itemXml, 'title')) || 'Untitled';
+        const link = getTagContent(itemXml, 'link') || '#';
+        const pubDate = getTagContent(itemXml, 'pubDate') || '';
+        let isoDate: string;
+
+        try {
+            isoDate = pubDate ? new Date(pubDate).toISOString() : new Date().toISOString();
+        } catch {
+            isoDate = new Date().toISOString();
+        }
+
+        items.push({
+            title,
+            link,
+            pubDate,
+            isoDate,
+            excerpt: createExcerpt(itemXml),
+            image: extractImage(itemXml),
             source: feed.label,
             sourceUrl: new URL(feed.url).origin,
-        }));
+        });
+    }
+
+    return items;
+}
+
+async function fetchFeed(feed: FeedConfig): Promise<FeedItem[]> {
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
+
+        const response = await fetch(feed.url, {
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'MississippiSportsApp/1.0',
+                'Accept': 'application/rss+xml, application/xml, text/xml',
+            },
+        });
+
+        clearTimeout(timeout);
+
+        if (!response.ok) {
+            console.warn(`⚠ Feed returned ${response.status}: ${feed.name}`);
+            return [];
+        }
+
+        const xml = await response.text();
+        return parseItems(xml, feed);
     } catch (error) {
         console.warn(`⚠ Failed to fetch feed: ${feed.name} (${feed.url})`, error);
         return [];
