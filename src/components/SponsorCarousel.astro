@@ -1,0 +1,245 @@
+---
+// SponsorCarousel.astro — auto-sliding sponsor banner carousel
+// Reads from /sponsors.json at build time, shows active sponsors sorted by sortOrder
+import sponsorData from '../../public/sponsors.json';
+
+interface Sponsor {
+  id: string;
+  name: string;
+  imageUrl: string;
+  tapUrl: string;
+  tagline?: string;
+  active: boolean;
+  sortOrder: number;
+}
+
+const sponsors: Sponsor[] = (sponsorData.sponsors as Sponsor[])
+  .filter((s) => s.active)
+  .sort((a, b) => a.sortOrder - b.sortOrder);
+---
+
+{sponsors.length > 0 && (
+  <div class="sponsor-carousel-wrapper animate-on-scroll" id="sponsors">
+    <div class="sponsor-carousel-header">
+      <span class="sponsor-label">Our Sponsors</span>
+    </div>
+    <div class="sponsor-carousel" aria-label="Sponsors">
+      <div class="sponsor-track" id="sponsor-track">
+        {/* Render sponsors twice for seamless infinite loop */}
+        {[...sponsors, ...sponsors].map((sponsor, i) => (
+          <a
+            href={sponsor.tapUrl}
+            target="_blank"
+            rel="noopener noreferrer sponsored"
+            class="sponsor-slide"
+            title={sponsor.tagline || sponsor.name}
+          >
+            <img
+              src={sponsor.imageUrl}
+              alt={sponsor.name}
+              class="sponsor-img"
+              loading={i < sponsors.length ? "eager" : "lazy"}
+              width="400"
+              height="150"
+            />
+          </a>
+        ))}
+      </div>
+    </div>
+    <!-- Navigation dots -->
+    <div class="sponsor-dots" id="sponsor-dots">
+      {sponsors.map((_, i) => (
+        <button
+          class={`sponsor-dot ${i === 0 ? 'active' : ''}`}
+          data-index={i}
+          aria-label={`Go to sponsor ${i + 1}`}
+        />
+      ))}
+    </div>
+  </div>
+)}
+
+<style>
+  .sponsor-carousel-wrapper {
+    width: 100%;
+    padding: 1.5rem 0;
+    position: relative;
+  }
+
+  .sponsor-carousel-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  .sponsor-label {
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--color-gold-500);
+  }
+
+  .sponsor-carousel {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    border-radius: 0.75rem;
+  }
+
+  .sponsor-track {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .sponsor-slide {
+    flex: 0 0 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    min-height: 100px;
+  }
+
+  @media (min-width: 768px) {
+    .sponsor-slide {
+      min-height: 120px;
+    }
+  }
+
+  .sponsor-img {
+    max-width: 100%;
+    max-height: 120px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    transition: transform 0.3s ease, filter 0.3s ease;
+  }
+
+  .sponsor-slide:hover .sponsor-img {
+    transform: scale(1.03);
+  }
+
+  @media (min-width: 768px) {
+    .sponsor-img {
+      max-height: 140px;
+    }
+  }
+
+  .sponsor-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .sponsor-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: none;
+    background: var(--color-navy-200);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+  }
+
+  .sponsor-dot.active {
+    background: var(--color-gold-500);
+    transform: scale(1.3);
+  }
+
+  .sponsor-dot:hover {
+    background: var(--color-gold-400);
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const track = document.getElementById('sponsor-track');
+    const dots = document.querySelectorAll('.sponsor-dot');
+    if (!track || dots.length === 0) return;
+
+    const totalSponsors = dots.length;
+    let currentIndex = 0;
+    let autoPlayTimer: ReturnType<typeof setInterval>;
+    let isHovered = false;
+
+    function goToSlide(index: number) {
+      currentIndex = index;
+      const offset = -(currentIndex * 100);
+      track.style.transform = `translateX(${offset}%)`;
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentIndex % totalSponsors);
+      });
+    }
+
+    function nextSlide() {
+      const nextIndex = currentIndex + 1;
+      if (nextIndex >= totalSponsors * 2) {
+        // Jump back to the clone start without animation
+        track.style.transition = 'none';
+        currentIndex = 0;
+        track.style.transform = `translateX(0%)`;
+        // Force reflow
+        track.offsetHeight;
+        track.style.transition = 'transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        setTimeout(() => goToSlide(1), 50);
+      } else {
+        goToSlide(nextIndex);
+      }
+    }
+
+    function startAutoPlay() {
+      stopAutoPlay();
+      autoPlayTimer = setInterval(() => {
+        if (!isHovered) nextSlide();
+      }, 4000);
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+    }
+
+    // Dot click navigation
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        goToSlide(i);
+        startAutoPlay(); // Reset timer on manual nav
+      });
+    });
+
+    // Pause on hover
+    const wrapper = track.closest('.sponsor-carousel-wrapper');
+    if (wrapper) {
+      wrapper.addEventListener('mouseenter', () => { isHovered = true; });
+      wrapper.addEventListener('mouseleave', () => { isHovered = false; });
+    }
+
+    // Touch swipe support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    track.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    track.addEventListener('touchend', (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchStartX - touchEndX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) {
+          nextSlide();
+        } else {
+          const prevIndex = currentIndex - 1;
+          goToSlide(prevIndex < 0 ? totalSponsors - 1 : prevIndex);
+        }
+        startAutoPlay();
+      }
+    }, { passive: true });
+
+    // Start
+    startAutoPlay();
+  });
+</script>

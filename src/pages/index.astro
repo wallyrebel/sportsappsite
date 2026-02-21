@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import HeroSection from '../components/HeroSection.astro';
 import NewsCard from '../components/NewsCard.astro';
 import DownloadCTA from '../components/DownloadCTA.astro';
+import SponsorCarousel from '../components/SponsorCarousel.astro';
 import SocialProof from '../components/SocialProof.astro';
 import NewsletterSection from '../components/NewsletterSection.astro';
 import AboutSection from '../components/AboutSection.astro';
@@ -59,9 +60,10 @@ const hasMoreItems = feedItems.length > ITEMS_PER_PAGE;
                 <NewsCard item={item} index={index} />
               )}
 
-              {/* Insert download CTA every CTA_INTERVAL items */}
+              {/* Insert sponsor carousel + download CTA every CTA_INTERVAL items */}
               {(index + 1) % CTA_INTERVAL === 0 && index !== displayItems.length - 1 && (
                 <div class="md:col-span-2 lg:col-span-3">
+                  <SponsorCarousel />
                   <DownloadCTA />
                 </div>
               )}
