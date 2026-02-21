@@ -1,0 +1,65 @@
+---
+import { siteConfig } from '../data/site.config';
+---
+<section id="hero" class="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16">
+  <!-- Background -->
+  <div class="absolute inset-0 bg-gradient-to-br from-navy-950 via-navy-900 to-navy-800">
+    <!-- Animated diagonal lines -->
+    <div class="absolute inset-0 opacity-[0.04]" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 40px, rgba(212,168,67,0.3) 40px, rgba(212,168,67,0.3) 41px); background-size: 60px 60px;"></div>
+    <!-- Radial glow -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gold-500/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-navy-950/50 to-transparent"></div>
+  </div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 text-center py-20">
+    <!-- Logo -->
+    <div class="mb-8 animate-fade-in">
+      <img
+        src="/logo.png"
+        alt="Mississippi Sports Group"
+        class="h-24 sm:h-32 md:h-40 w-auto mx-auto drop-shadow-2xl"
+        width="160"
+        height="160"
+      />
+    </div>
+
+    <!-- Headline -->
+    <h1 class="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 animate-slide-up" style="animation-delay: 0.1s;">
+      Your Source for<br />
+      <span class="text-gradient">Mississippi Sports.</span>
+    </h1>
+
+    <!-- Subheadline -->
+    <p class="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-2xl mx-auto mb-10 font-body animate-slide-up" style="animation-delay: 0.2s;">
+      High school and college sports coverage from across Mississippi.
+    </p>
+
+    <!-- CTA Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.3s;">
+      <a
+        href={siteConfig.appStore.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-3 bg-gradient-to-r from-gold-500 to-gold-400 text-navy-900 font-display font-bold text-lg uppercase tracking-wider px-8 py-4 rounded-xl hover:from-gold-400 hover:to-gold-300 transition-all hover:shadow-xl hover:shadow-gold-500/25 hover:-translate-y-1 animate-pulse-glow"
+        id="hero-download-cta"
+      >
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 21.99 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 21.99C7.78997 22.03 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+        Download on App Store
+      </a>
+    </div>
+
+    <!-- Trust badge -->
+    <div class="mt-12 animate-slide-up" style="animation-delay: 0.4s;">
+      <p class="text-sm text-gray-500 uppercase tracking-widest font-display">
+        Covering Mississippi Since {siteConfig.founder.yearFounded}
+      </p>
+    </div>
+  </div>
+
+  <!-- Scroll indicator -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+    <svg class="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+    </svg>
+  </div>
+</section>

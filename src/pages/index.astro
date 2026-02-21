@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import NewsCard from '../components/NewsCard.astro';
+import DownloadCTA from '../components/DownloadCTA.astro';
+import SocialProof from '../components/SocialProof.astro';
+import NewsletterSection from '../components/NewsletterSection.astro';
+import AboutSection from '../components/AboutSection.astro';
+import ContactSection from '../components/ContactSection.astro';
+import { getAllFeedItems, applyDefaultImages } from '../lib/rss';
+import { siteConfig } from '../data/site.config';
+
+// Fetch and process RSS feeds at build time
+let feedItems: Awaited<ReturnType<typeof getAllFeedItems>> = [];
+try {
+  const rawItems = await getAllFeedItems();
+  feedItems = applyDefaultImages(rawItems);
+} catch (error) {
+  console.error('Failed to fetch RSS feeds:', error);
+}
+
+const ITEMS_PER_PAGE = 20;
+const CTA_INTERVAL = 7; // Insert download CTA every 7 items
+const displayItems = feedItems.slice(0, ITEMS_PER_PAGE);
+const hasMoreItems = feedItems.length > ITEMS_PER_PAGE;
+---
+<BaseLayout>
+  <!-- Hero -->
+  <HeroSection />
+
+  <!-- Social Proof Strip -->
+  <SocialProof />
+
+  <!-- News Feed -->
+  <section id="news" class="section-padding bg-surface-dim">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-10 animate-on-scroll">
+        <span class="inline-block font-display text-gold-500 text-sm font-bold uppercase tracking-widest mb-3">
+          Latest Coverage
+        </span>
+        <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-navy-900 mb-4">
+          Mississippi Sports News
+        </h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">
+          The latest high school and college sports stories from across the Magnolia State.
+        </p>
+      </div>
+
+      {displayItems.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {displayItems.map((item, index) => (
+            <>
+              {/* Featured first article takes 2 columns */}
+              {index === 0 ? (
+                <div class="md:col-span-2 lg:col-span-2">
+                  <NewsCard item={item} featured={true} index={index} />
+                </div>
+              ) : (
+                <NewsCard item={item} index={index} />
+              )}
+
+              {/* Insert download CTA every CTA_INTERVAL items */}
+              {(index + 1) % CTA_INTERVAL === 0 && index !== displayItems.length - 1 && (
+                <div class="md:col-span-2 lg:col-span-3">
+                  <DownloadCTA />
+                </div>
+              )}
+            </>
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-16">
+          <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+          </div>
+          <p class="text-gray-500 text-lg font-medium">No articles available right now.</p>
+          <p class="text-gray-400 text-sm mt-2">Check back soon for the latest Mississippi sports news.</p>
+        </div>
+      )}
+
+      {/* Mid-page App Download CTA */}
+      <div class="mt-12 text-center animate-on-scroll">
+        <div class="inline-flex flex-col items-center gap-4 bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+          <p class="font-display text-xl font-bold text-navy-900 uppercase">Get the App for Real-Time Updates</p>
+          <a
+            href={siteConfig.appStore.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 text-navy-900 font-display font-bold uppercase tracking-wider px-6 py-3 rounded-lg hover:from-gold-400 hover:to-gold-300 transition-all hover:shadow-lg hover:shadow-gold-500/25 hover:-translate-y-0.5"
+            id="mid-page-download-cta"
+          >
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 21.99 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 21.99C7.78997 22.03 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+            Download Mississippi Sports
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- App Screenshots Placeholder -->
+  <section class="section-padding bg-navy-950 text-white overflow-hidden">
+    <div class="max-w-5xl mx-auto text-center">
+      <div class="animate-on-scroll">
+        <span class="inline-block font-display text-gold-400 text-sm font-bold uppercase tracking-widest mb-3">
+          The App
+        </span>
+        <h2 class="font-display text-3xl md:text-4xl font-bold text-white mb-4">
+          Mississippi Sports, Right in Your Pocket
+        </h2>
+        <p class="text-gray-400 max-w-xl mx-auto mb-10">
+          Scores, news, and coverage from across the state — all in one beautiful app.
+        </p>
+      </div>
+
+      <!-- Phone mockup placeholder -->
+      <div class="flex justify-center gap-4 md:gap-8 animate-on-scroll" style="animation-delay: 0.15s;">
+        <div class="w-48 md:w-56 h-80 md:h-96 bg-gradient-to-b from-navy-800 to-navy-900 rounded-3xl border border-navy-700 shadow-2xl flex items-center justify-center p-6">
+          <div class="text-center">
+            <img src="/logo.png" alt="Mississippi Sports" class="h-16 w-auto mx-auto mb-4 opacity-60" width="64" height="64" loading="lazy" />
+            <p class="text-gray-500 text-xs font-display uppercase tracking-wider">App Preview</p>
+            <p class="text-gray-600 text-[10px] mt-1">Coming Soon</p>
+          </div>
+        </div>
+        <div class="hidden sm:flex w-48 md:w-56 h-80 md:h-96 bg-gradient-to-b from-navy-800 to-navy-900 rounded-3xl border border-navy-700 shadow-2xl items-center justify-center p-6 -mt-8">
+          <div class="text-center">
+            <img src="/logo.png" alt="Mississippi Sports" class="h-16 w-auto mx-auto mb-4 opacity-60" width="64" height="64" loading="lazy" />
+            <p class="text-gray-500 text-xs font-display uppercase tracking-wider">App Preview</p>
+            <p class="text-gray-600 text-[10px] mt-1">Coming Soon</p>
+          </div>
+        </div>
+        <div class="hidden md:flex w-48 md:w-56 h-80 md:h-96 bg-gradient-to-b from-navy-800 to-navy-900 rounded-3xl border border-navy-700 shadow-2xl items-center justify-center p-6">
+          <div class="text-center">
+            <img src="/logo.png" alt="Mississippi Sports" class="h-16 w-auto mx-auto mb-4 opacity-60" width="64" height="64" loading="lazy" />
+            <p class="text-gray-500 text-xs font-display uppercase tracking-wider">App Preview</p>
+            <p class="text-gray-600 text-[10px] mt-1">Coming Soon</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <NewsletterSection />
+
+  <!-- About -->
+  <AboutSection />
+
+  <!-- Contact -->
+  <ContactSection />
+</BaseLayout>

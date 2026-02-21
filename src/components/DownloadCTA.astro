@@ -1,0 +1,32 @@
+---
+import { siteConfig } from '../data/site.config';
+---
+<div class="my-8 animate-on-scroll">
+  <div class="relative bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 rounded-2xl p-8 md:p-10 text-center overflow-hidden">
+    <!-- Background texture -->
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(212,168,67,0.5) 20px, rgba(212,168,67,0.5) 21px);"></div>
+    
+    <div class="relative z-10">
+      <div class="inline-flex items-center gap-2 bg-gold-500/10 text-gold-400 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4 font-display">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        Free Download
+      </div>
+      <h3 class="font-display text-2xl md:text-3xl font-bold text-white mb-3">
+        Never Miss a Mississippi Score
+      </h3>
+      <p class="text-gray-400 mb-6 max-w-lg mx-auto">
+        Get instant access to scores, standings, and stories — all in one app.
+      </p>
+      <a
+        href={siteConfig.appStore.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 bg-gradient-to-r from-gold-500 to-gold-400 text-navy-900 font-display font-bold uppercase tracking-wider px-6 py-3 rounded-lg hover:from-gold-400 hover:to-gold-300 transition-all hover:shadow-lg hover:shadow-gold-500/25 hover:-translate-y-0.5"
+        id="inline-download-cta"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5C17.88 20.74 17 21.95 15.66 21.97C14.32 21.99 13.89 21.18 12.37 21.18C10.84 21.18 10.37 21.95 9.09997 21.99C7.78997 22.03 6.79997 20.68 5.95997 19.47C4.24997 17 2.93997 12.45 4.69997 9.39C5.56997 7.87 7.12997 6.91 8.81997 6.88C10.1 6.86 11.32 7.75 12.11 7.75C12.89 7.75 14.37 6.68 15.92 6.84C16.57 6.87 18.39 7.1 19.56 8.82C19.47 8.88 17.39 10.1 17.41 12.63C17.44 15.65 20.06 16.66 20.09 16.67C20.06 16.74 19.67 18.11 18.71 19.5ZM13 3.5C13.73 2.67 14.94 2.04 15.94 2C16.07 3.17 15.6 4.35 14.9 5.19C14.21 6.04 13.07 6.7 11.95 6.61C11.8 5.46 12.36 4.26 13 3.5Z"/></svg>
+        Download App
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Sports Mississippi",
+        "url": "https://sportsmississippi.com/feed",
+        "label": "Sports Mississippi"
+    },
+    {
+        "name": "Tippah Sports",
+        "url": "https://tippahsports.com/feed",
+        "label": "Tippah Sports"
+    },
+    {
+        "name": "Alcorn Sports MS",
+        "url": "https://alcornsportsms.com/feed",
+        "label": "Alcorn Sports MS"
+    },
+    {
+        "name": "Prentiss Sports MS",
+        "url": "https://prentisssportsms.com/feed",
+        "label": "Prentiss Sports MS"
+    },
+    {
+        "name": "Union Sports MS",
+        "url": "https://unionsportsms.com/feed",
+        "label": "Union Sports MS"
+    },
+    {
+        "name": "DeSoto County News Sports",
+        "url": "https://desotocountynews.com/category/desoto-county-sports/feed",
+        "label": "DeSoto County News"
+    }
+]

@@ -1,0 +1,63 @@
+---
+import { siteConfig } from '../data/site.config';
+const currentYear = new Date().getFullYear();
+---
+<section id="about" class="section-padding bg-navy-950 text-white">
+  <div class="max-w-6xl mx-auto">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <!-- Content -->
+      <div class="animate-on-scroll">
+        <span class="inline-block font-display text-gold-400 text-sm font-bold uppercase tracking-widest mb-4">
+          About Mississippi Sports Group
+        </span>
+        <h2 class="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+          Trusted Sports Coverage Since {siteConfig.founder.yearFounded}
+        </h2>
+        <div class="space-y-4 text-gray-300 leading-relaxed">
+          <p>
+            Mississippi Sports Group was founded in {siteConfig.founder.yearFounded} by <strong class="text-white">{siteConfig.founder.name}</strong>, a veteran Mississippi sports journalist with a deep commitment to covering the athletes, coaches, and communities that make high school and college sports in the Magnolia State unlike anywhere else.
+          </p>
+          <p>
+            What began as a single publication has grown into a statewide digital network spanning multiple counties and communities. From Friday night football under the lights in Tippah County to NCAA matchups in the Delta, Mississippi Sports Group delivers the scores, stories, and standout performances that matter most to Mississippi sports fans.
+          </p>
+          <p>
+            With a focus on trusted, local journalism and a growing digital presence, Mississippi Sports Group is building the future of sports media in Mississippi — one story at a time.
+          </p>
+        </div>
+      </div>
+
+      <!-- Stats / Trust Badges -->
+      <div class="animate-on-scroll" style="animation-delay: 0.15s;">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-navy-900/50 border border-navy-800 rounded-2xl p-6 text-center">
+            <div class="font-display text-4xl md:text-5xl font-bold text-gold-400 mb-2">
+              {currentYear - siteConfig.founder.yearFounded}+
+            </div>
+            <div class="text-sm text-gray-400 uppercase tracking-wider font-display">Years of Coverage</div>
+          </div>
+          <div class="bg-navy-900/50 border border-navy-800 rounded-2xl p-6 text-center">
+            <div class="font-display text-4xl md:text-5xl font-bold text-gold-400 mb-2">6+</div>
+            <div class="text-sm text-gray-400 uppercase tracking-wider font-display">Publications</div>
+          </div>
+          <div class="bg-navy-900/50 border border-navy-800 rounded-2xl p-6 text-center">
+            <div class="font-display text-4xl md:text-5xl font-bold text-gold-400 mb-2">100%</div>
+            <div class="text-sm text-gray-400 uppercase tracking-wider font-display">Mississippi Focused</div>
+          </div>
+          <div class="bg-navy-900/50 border border-navy-800 rounded-2xl p-6 text-center">
+            <div class="font-display text-4xl md:text-5xl font-bold text-gold-400 mb-2">HS + College</div>
+            <div class="text-sm text-gray-400 uppercase tracking-wider font-display">Full Coverage</div>
+          </div>
+        </div>
+
+        <div class="mt-6 p-4 bg-navy-900/30 border border-navy-800 rounded-xl flex items-center gap-4">
+          <img src="/logo.png" alt="Mississippi Sports Group" class="h-12 w-auto" width="48" height="48" loading="lazy" />
+          <div>
+            <p class="text-white font-display font-bold text-sm uppercase">Founded by {siteConfig.founder.name}</p>
+            <p class="text-gray-400 text-xs">{siteConfig.founder.title} · Veteran Mississippi Sports Journalist</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+

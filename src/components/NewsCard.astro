@@ -1,0 +1,113 @@
+---
+import type { FeedItem } from '../lib/rss';
+
+interface Props {
+  item: FeedItem;
+  featured?: boolean;
+  index?: number;
+}
+
+const { item, featured = false, index = 0 } = Astro.props;
+
+const date = new Date(item.isoDate);
+const formattedDate = date.toLocaleDateString('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+const relativeTime = getRelativeTime(date);
+
+function getRelativeTime(date: Date): string {
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const days = Math.floor(hours / 24);
+  if (hours < 1) return 'Just now';
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return formattedDate;
+}
+---
+<article
+  class:list={[
+    'group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 card-hover animate-on-scroll',
+    { 'md:col-span-2 md:grid md:grid-cols-2': featured }
+  ]}
+  style={`animation-delay: ${index * 0.05}s;`}
+>
+  <!-- Image -->
+  <a
+    href={item.link}
+    target="_blank"
+    rel="noopener noreferrer"
+    class:list={['block img-zoom', featured ? 'h-56 md:h-full' : 'h-48 sm:h-52']}
+    aria-label={`Read: ${item.title}`}
+  >
+    <img
+      src={item.image}
+      alt={item.title}
+      class="w-full h-full object-cover"
+      loading="lazy"
+      decoding="async"
+      onerror="this.onerror=null; this.src='/default-article.jpg';"
+    />
+  </a>
+
+  <!-- Content -->
+  <div class={featured ? 'p-6 md:p-8 flex flex-col justify-center' : 'p-5'}>
+    <!-- Source + Date -->
+    <div class="flex items-center gap-2 mb-3">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-navy-50 text-navy-700 uppercase tracking-wider">
+        {item.source}
+      </span>
+      <span class="text-xs text-gray-400">
+        {relativeTime}
+      </span>
+    </div>
+
+    <!-- Title -->
+    <h3 class:list={[
+      'font-display font-bold text-navy-900 group-hover:text-navy-600 transition-colors leading-tight mb-3',
+      featured ? 'text-xl md:text-2xl lg:text-3xl' : 'text-lg'
+    ]}>
+      <a href={item.link} target="_blank" rel="noopener noreferrer" class="hover:underline decoration-gold-400 underline-offset-4">
+        {item.title}
+      </a>
+    </h3>
+
+    <!-- Excerpt -->
+    {item.excerpt && (
+      <p class:list={['text-gray-600 leading-relaxed', featured ? 'text-base' : 'text-sm line-clamp-3']}>
+        {item.excerpt}
+      </p>
+    )}
+
+    <!-- Read more -->
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center mt-4 text-sm font-semibold text-navy-600 hover:text-gold-600 transition-colors group/link"
+    >
+      Read Full Story
+      <svg class="w-4 h-4 ml-1 transform group-hover/link:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </a>
+  </div>
+</article>
+
+<!-- NewsArticle Schema -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": item.title,
+  "url": item.link,
+  "datePublished": item.isoDate,
+  "image": item.image,
+  "description": item.excerpt,
+  "publisher": {
+    "@type": "Organization",
+    "name": item.source,
+  },
+})} />
