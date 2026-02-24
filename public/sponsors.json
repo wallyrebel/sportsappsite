@@ -28,13 +28,22 @@
             "sortOrder": 3
         },
         {
+            "id": "modern-woodmen",
+            "name": "Modern Woodmen – Steven Eaton, FIC",
+            "imageUrl": "https://mississippisportsapp.com/sponsors/modern-woodmen.png",
+            "tapUrl": "https://reps.modernwoodmen.org/seaton/",
+            "tagline": "Life Insurance | Retirement Planning | Financial Services",
+            "active": true,
+            "sortOrder": 4
+        },
+        {
             "id": "in-house-ad",
             "name": "Your Ad Here",
             "imageUrl": "https://mississippisportsapp.com/sponsors/in-house-ad.png",
             "tapUrl": "https://mississippisportsapp.com/#contact",
             "tagline": "Advertise with Mississippi Sports App",
             "active": true,
-            "sortOrder": 4
+            "sortOrder": 5
         }
     ]
 }
