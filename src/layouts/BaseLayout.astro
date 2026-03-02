@@ -42,7 +42,7 @@ const ogImageUrl = `${siteConfig.url}${ogImage}`;
   <meta property="og:image" content={ogImageUrl} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content={`${siteConfig.name} - ${siteConfig.tagline}`} />
+  <meta property="og:image:alt" content="Mississippi Sports App — Scores, News & Live Coverage" />
   <meta property="og:url" content={canonicalUrl} />
   <meta property="og:site_name" content={siteConfig.name} />
 
@@ -51,7 +51,7 @@ const ogImageUrl = `${siteConfig.url}${ogImage}`;
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
-  <meta name="twitter:image:alt" content={`${siteConfig.name} - ${siteConfig.tagline}`} />
+  <meta name="twitter:image:alt" content="Mississippi Sports App — Scores, News & Live Coverage" />
 
   <!-- Favicons -->
   <link rel="icon" type="image/png" href="/logo.png" />
@@ -66,7 +66,8 @@ const ogImageUrl = `${siteConfig.url}${ogImage}`;
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "Mississippi Sports Group",
+    "name": "Mississippi Sports App",
+    "alternateName": "Mississippi Sports Group",
     "url": siteConfig.url,
     "logo": `${siteConfig.url}/logo.png`,
     "foundingDate": "2006",
@@ -75,22 +76,36 @@ const ogImageUrl = `${siteConfig.url}${ogImage}`;
       "name": siteConfig.founder.name,
     },
     "description": siteConfig.description,
-    "sameAs": [],
+    "sameAs": [
+      siteConfig.social.facebook,
+      siteConfig.social.twitter,
+    ],
   })} />
 
   <!-- SoftwareApplication Schema -->
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "name": "Mississippi Sports",
+    "name": "Mississippi Sports App",
     "operatingSystem": "iOS",
     "applicationCategory": "SportsApplication",
+    "description": "The #1 free Mississippi Sports App for live high school and college sports scores, breaking news, standings, and statewide coverage across the Magnolia State.",
+    "downloadUrl": siteConfig.appStore.url,
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD",
     },
     "url": siteConfig.appStore.url,
+  })} />
+
+  <!-- WebSite Schema for sitelinks search box -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Mississippi Sports App",
+    "url": siteConfig.url,
+    "description": siteConfig.description,
   })} />
 
   <!-- Cloudflare Web Analytics -->

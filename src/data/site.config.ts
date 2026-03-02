@@ -1,8 +1,8 @@
 export const siteConfig = {
-    name: 'Mississippi Sports',
-    tagline: 'Your Source for Mississippi Sports',
+    name: 'Mississippi Sports App',
+    tagline: 'The #1 Mississippi Sports App for Scores, News & More',
     description:
-        'High school and college sports coverage from across Mississippi. Download the Mississippi Sports app for scores, news, and more.',
+        'Mississippi Sports App — the #1 free app for Mississippi high school and college sports. Get live scores, breaking news, standings, and statewide coverage. Download the Mississippi Sports App today.',
     url: 'https://mississippisportsapp.com',
     appStore: {
         url: 'https://apps.apple.com/us/app/mississippi-sports/id6758892239',
@@ -19,17 +19,24 @@ export const siteConfig = {
         twitter: 'https://x.com/SocialSportsMs',
     },
     seo: {
-        title: 'Mississippi Sports App | High School & College Sports in Mississippi',
+        title: 'Mississippi Sports App | #1 App for MS High School & College Sports',
         keywords: [
+            'Mississippi Sports App',
+            'Mississippi sports app download',
+            'MS sports app',
+            'Mississippi high school sports app',
+            'best Mississippi sports app',
+            'Mississippi sports news app',
+            'Mississippi football scores app',
+            'Mississippi basketball app',
+            'Mississippi college sports app',
             'Mississippi high school sports',
             'Mississippi sports news',
             'Mississippi football scores',
-            'Mississippi basketball news',
+            'download Mississippi Sports app',
+            'free Mississippi sports app',
             'Tippah County sports',
             'Desoto County sports',
-            'Download Mississippi Sports app',
-            'Mississippi college sports',
-            'Mississippi sports app',
         ],
     },
     founder: {
