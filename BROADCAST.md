@@ -10,7 +10,7 @@ In vMix 28, add a **Web Browser** input, paste the display URL, and set the brow
 
 Cloudflare Worker `mississippi-sports-broadcast` runs every five minutes, independently of a browser or vMix. It selects sources whose refresh interval has elapsed, prioritizes news, then processes up to six other sources in oldest-attempt order. Data is stored in D1 `mississippi-sports-broadcast`. Pages uses its `BROADCAST` service binding to serve `/api/broadcast`.
 
-The display polls the API every minute. It cycles SportsMississippi featured images/headlines, final scoreboards, upcoming events, published meet results, sidebar sponsors and eligible full-screen sponsors. It retains the last successful browser snapshot on a network failure and labels it offline. Neither a page visit nor a site rebuild is needed to collect scores.
+The display polls the API every minute. It cycles the 20 latest SportsMississippi featured images/headlines, final scoreboards, upcoming events, published meet results, sidebar sponsors and eligible full-screen sponsors. The headline crawl appears below the Mississippi Sports Group header; scores/upcoming events remain at the bottom. It retains the last successful browser snapshot on a network failure and labels it offline. Neither a page visit nor a site rebuild is needed to collect scores.
 
 Target collection intervals (not a guarantee of upstream reporting speed):
 
@@ -25,6 +25,10 @@ Target collection intervals (not a guarantee of upstream reporting speed):
 | MileSplit MS | 3 hours | Public HS cross-country/indoor/outdoor meet listings and posted-result notices |
 
 Intervals can be exceeded during source failures or scheduling backlog. Last-attempt and last-success timestamps show actual behavior. A successful empty response is labeled **EMPTY**, not proof of complete coverage. Errors retain the previous good data. Stale records carry their original observation timestamp.
+
+**Cloud execution check, September 28, 2026:** the first scheduled provider checks successfully refreshed WordPress, MAIS football and Ole Miss. MaxPreps, the MACCC composite and MileSplit returned HTTP 403 to the Cloudflare collector despite successful local public-page verification. Their records are last-known data, not verified unattended feeds. The status dashboard surfaces these failures; permitted feed access or alternate official sources are required for reliable automatic updates. MACCC's alternate public scheduling app was inspected but contained copied draft schedules, so it was not silently substituted as confirmed data.
+
+Seeded sources receive a first cloud collection without waiting for their normal interval. The dashboard's “Cloud refresh verified” timestamp distinguishes a successful scheduled fetch from initial local verification. A completed scheduler run may include individual source failures; both counts are shown.
 
 ## School coverage
 
@@ -49,6 +53,8 @@ Sources inspected: [MHSAA](https://www.misshsaa.com/), [MAIS official scoreboard
 
 ## Sponsors
 
+The user-supplied Casey Lott injury-law ad is active in both the sidebar and a 15-second full-screen slide every five minutes. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
+
 Edit `public/broadcast-sponsors.json` and publish through the site's normal Git deployment. The browser rechecks this file every minute. Existing homepage advertisers are not silently enrolled in broadcast placements. Empty inventory displays a house ad.
 
 ```json
@@ -68,7 +74,13 @@ Edit `public/broadcast-sponsors.json` and publish through the site's normal Git 
 }
 ```
 
-Use 16:9 full-screen art and an image that remains legible in a roughly 375 × 145-pixel sidebar image area. ISO start/end timestamps must include an offset or `Z`.
+Artwork uses contain fitting to preserve all text. The sidebar image area is roughly 375 × 260 pixels; square artwork is supported. ISO start/end timestamps must include an offset or `Z`.
+
+## Optional background music
+
+The user-supplied **Game Time Live** track is enabled in `public/broadcast-audio.json` at volume `0.15`, sourced from `/audio/game-time-live.mp3`. It repeats using the browser's audio loop setting. To replace it, update `src` and provide the replacement in `public/audio/`. A stable HTTPS audio URL, including your WordPress media library, can also be used. The browser rechecks configuration each minute without restarting an unchanged track. MP3 or WAV is appropriate; use a track edited for a clean loop if you need a seamless join.
+
+In vMix, enable audio on the Web Browser input and set its mixer level. Browser autoplay rules may require one interaction: open `/broadcast?controls=1` for visible audio controls and press Play in vMix's browser interaction view if necessary. Use `/broadcast?audio=off` for a silent input. Controls are hidden on the normal broadcast URL. The music track is independent of story/score rotations and continues during sponsor slides.
 
 ## Alerts and operations
 

@@ -14,8 +14,9 @@ export interface Source {
 export interface Snapshot {
   sourceId: string; games: Game[]; stories: Story[]; lastSuccess: string | null;
   lastAttempt: string; error: string | null; failures: number; requests: number;
+  runtimeAttempted?: boolean; runtimeSuccess?: string;
 }
-export interface Health extends Source { lastSuccess: string | null; lastAttempt: string | null; error: string | null; failures: number; count: number; state: 'healthy' | 'empty' | 'stale' | 'error' | 'pending'; }
+export interface Health extends Source { lastSuccess: string | null; lastAttempt: string | null; runtimeSuccess: string | null; error: string | null; failures: number; count: number; state: 'healthy' | 'empty' | 'stale' | 'error' | 'pending'; }
 export interface BroadcastData { generatedAt: string; games: Game[]; stories: Story[]; sources: Health[]; gaps: {name:string; url:string; note:string}[]; conflicts: Game[]; collector?:{lastStarted:string;lastFinished:string|null;processed:number;failed:number}; }
 
 export function centralDate(now = new Date()): string {
@@ -40,10 +41,11 @@ export function mergeData(sources: Source[], snapshots: Snapshot[], gaps: Broadc
   const health: Health[]=sources.map(s=>{
     const v=byId.get(s.id); const stale=!v?.lastSuccess || now.getTime()-Date.parse(v.lastSuccess)>Math.max(s.intervalMinutes*3,90)*60000;
     const count=s.kind==='wordpress'?v?.stories.length??0:v?.games.length??0;
-    return {...s,lastSuccess:v?.lastSuccess??null,lastAttempt:v?.lastAttempt??null,error:v?.error??null,failures:v?.failures??0,count,state:!v?'pending':v.error?'error':stale?'stale':count?'healthy':'empty'};
+    return {...s,lastSuccess:v?.lastSuccess??null,lastAttempt:v?.lastAttempt??null,runtimeSuccess:v?.runtimeSuccess??null,error:v?.error??null,failures:v?.failures??0,count,state:!v?'pending':v.error?'error':stale?'stale':count?'healthy':'empty'};
   });
   const games=snapshots.flatMap(s=>s.games).filter(g=>g.date>=shiftDate(today,-7)&&g.date<=shiftDate(today,14)).map(g=>{
-    const stale=now.getTime()-Date.parse(g.observedAt)>3*3600000;
+    const state=health.find(s=>s.id===g.sourceId)?.state;
+    const stale=state==='error'||state==='stale'||now.getTime()-Date.parse(g.observedAt)>3*3600000;
     // An unplayed record from yesterday is not an upcoming game or a presumed final.
     return {...g,stale,status:g.status==='scheduled'&&g.date<today?'missing' as const:g.status};
   });

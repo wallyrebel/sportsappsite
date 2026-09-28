@@ -7,14 +7,19 @@ async function save(env:Env,s:Snapshot){await env.BROADCAST_DB.prepare('INSERT I
 async function refresh(env:Env,now:Date){
   await env.BROADCAST_DB.prepare('INSERT INTO collector_runs (id,last_started) VALUES (1,?) ON CONFLICT(id) DO UPDATE SET last_started=excluded.last_started').bind(now.toISOString()).run();
   const previous=await snapshots(env),byId=new Map(previous.map(s=>[s.sourceId,s]));
-  const due=SOURCES.filter(s=>!byId.get(s.id)||now.getTime()-Date.parse(byId.get(s.id)!.lastAttempt)>=s.intervalMinutes*60000)
+  const due=SOURCES.filter(s=>!byId.get(s.id)?.runtimeAttempted||now.getTime()-Date.parse(byId.get(s.id)!.lastAttempt)>=s.intervalMinutes*60000)
     .sort((a,b)=>(byId.get(a.id)?.lastAttempt||'').localeCompare(byId.get(b.id)?.lastAttempt||''));
   // Bound work and source traffic. Each source retains its last good snapshot on any failed page.
-  const news=due.find(s=>s.kind==='wordpress');const batch=[...(news?[news]:[]),...due.filter(s=>s!==news).slice(0,6)];
+  const news=due.find(s=>s.kind==='wordpress'),others=due.filter(s=>s!==news);
+  // During initialization verify each provider family promptly, then fill in oldest due sources.
+  const families=[...new Set(others.map(s=>s.kind))];const selected=families.map(kind=>others.find(s=>s.kind===kind)!).slice(0,6);
+  for(const s of others){if(selected.length>=6)break;if(!selected.includes(s))selected.push(s);}
+  const batch=[...(news?[news]:[]),...selected];
   let failed=0;
   for(const source of batch){
     const old=byId.get(source.id);let next:Snapshot;
     try{next=await collect(source,old,now);}catch(error){next={sourceId:source.id,games:old?.games||[],stories:old?.stories||[],lastSuccess:old?.lastSuccess||null,lastAttempt:now.toISOString(),failures:(old?.failures||0)+1,error:error instanceof Error?error.message:'Collection failed',requests:0};}
+    next.runtimeAttempted=true;next.runtimeSuccess=next.error?old?.runtimeSuccess:next.lastSuccess||undefined;
     await save(env,next);byId.set(source.id,next);if(next.error)failed++;
     console.log(JSON.stringify({source:source.id,ok:!next.error,items:next.games.length+next.stories.length,error:next.error}));
   }

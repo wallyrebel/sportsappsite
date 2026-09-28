@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "src": "/audio/game-time-live.mp3",
+  "volume": 0.15,
+  "label": "Game Time Live"
+}

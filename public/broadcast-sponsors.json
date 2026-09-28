@@ -2,5 +2,13 @@
   "sidebarSeconds": 20,
   "fullscreenEverySeconds": 300,
   "fullscreenSeconds": 15,
-  "sponsors": []
+  "sponsors": [
+    {
+      "name": "Casey Lott · Injury Law",
+      "image": "/sponsors/broadcast/casey-lott-injury-law.png",
+      "fullscreenImage": "/sponsors/broadcast/casey-lott-injury-law.png",
+      "placements": ["sidebar", "fullscreen"],
+      "active": true
+    }
+  ]
 }

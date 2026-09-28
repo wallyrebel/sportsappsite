@@ -15,7 +15,7 @@ function available(kind:'final'|'scheduled'|'result'):Game[]{const today=central
 function card(game:Game){const div=document.createElement('div');div.className='game';
   const meta=document.createElement('div');meta.className='game-meta';meta.textContent=`${game.level} · ${game.sport} · ${dateLabel(game.date)}`;div.append(meta);
   game.teams.forEach((name,i)=>{const row=document.createElement('div');row.className='team';const n=document.createElement('span');n.textContent=name;const s=document.createElement('b');s.textContent=game.status==='final'&&game.scores?String(game.scores[i]):'';row.append(n,s);div.append(row);});
-  const foot=document.createElement('div');foot.className='game-foot';const stale=Date.now()-Date.parse(game.observedAt)>3*3600000;
+  const foot=document.createElement('div');foot.className='game-foot';const stale=game.stale||Date.now()-Date.parse(game.observedAt)>3*3600000;
   foot.textContent=`${game.status==='final'?'FINAL':game.status==='result'?game.result||'Reported result':game.time} · ${game.source}${stale?' · LAST KNOWN':''}`;div.append(foot);return div;
 }
 function cards(target:string,games:Game[],message:string){const root=el(target);root.replaceChildren(...games.map(card));if(!games.length){const p=document.createElement('p');p.className='empty';p.textContent=message;root.append(p);}}
@@ -30,7 +30,7 @@ function updateRail(){const kind=railIndex%2===0?'scheduled':'final',games=avail
 function crawl(id:string,animation:Animation|undefined,speed:number,iterations=Infinity){animation?.cancel();const node=el(id),width=node.scrollWidth,start=node.parentElement!.clientWidth;return node.animate([{transform:`translateX(${start}px)`},{transform:`translateX(-${width}px)`}],{duration:(width+start)/speed*1000,iterations});}
 function updateTickers(){
   const kind=(['final','scheduled','result'] as const)[tickerIndex%3];const games=available(kind);const root=el('score-ticker');root.replaceChildren();text('ticker-label',kind==='final'?'FINALS':kind==='result'?'RESULTS':'UP NEXT');
-  for(const g of page(games,Math.floor(tickerIndex/3),6)){const span=document.createElement('span');span.className='ticker-item';const meta=document.createElement('small');meta.textContent=`${g.sport.toUpperCase()} · ${dateLabel(g.date)} · ${g.source}${Date.now()-Date.parse(g.observedAt)>3*3600000?' · LAST KNOWN':''}`;span.append(meta,document.createTextNode(g.status==='final'&&g.scores?`${g.teams[0]} ${g.scores[0]} — ${g.teams[1]} ${g.scores[1]} · FINAL`:`${g.teams.join(g.event?' · ':' vs ')} · ${g.status==='result'?g.result:g.time}`));root.append(span);}
+  for(const g of page(games,Math.floor(tickerIndex/3),6)){const span=document.createElement('span');span.className='ticker-item';const meta=document.createElement('small');meta.textContent=`${g.sport.toUpperCase()} · ${dateLabel(g.date)} · ${g.source}${g.stale||Date.now()-Date.parse(g.observedAt)>3*3600000?' · LAST KNOWN':''}`;span.append(meta,document.createTextNode(g.status==='final'&&g.scores?`${g.teams[0]} ${g.scores[0]} — ${g.teams[1]} ${g.scores[1]} · FINAL`:`${g.teams.join(g.event?' · ':' vs ')} · ${g.status==='result'?g.result:g.time}`));root.append(span);}
   if(!root.childNodes.length)root.textContent='Awaiting source-reported games • Missing coverage is listed at /broadcast/status';
   scoreAnimation=crawl('score-ticker',scoreAnimation,95,1);void scoreAnimation.finished.then(updateTickers).catch(()=>{});tickerIndex++;
   const news=(data?.stories||[]).map(s=>s.title).join('     •     ')||'Sports Mississippi • Your state. Your teams.';if(el('news-ticker').textContent!==news||!newsAnimation){text('news-ticker',news);newsAnimation=crawl('news-ticker',newsAnimation,80);}
@@ -38,7 +38,7 @@ function updateTickers(){
 function status(){
   const states=data?.sources||[],healthy=states.filter(s=>s.state==='healthy').length;
   const age=data?Math.round((Date.now()-Date.parse(data.generatedAt))/60000):0;
-  text('data-status',!data?'CONNECTING · NO VERIFIED DATA YET':`${offline?'OFFLINE · LAST SAVED DATA':age>3?'UPDATE DELAYED':'AUTO UPDATING'} · ${healthy}/${states.length} SOURCES CURRENT · COVERAGE GAPS ${data.gaps.length}${data.conflicts.length?' · SCORES HELD FOR CONFLICT':''}`);
+  text('data-status',!data?'CONNECTING · NO VERIFIED DATA YET':`${offline?'OFFLINE · LAST SAVED DATA':age>3?'UPDATE DELAYED':states.some(s=>s.state==='error')?'SOME FEEDS UNAVAILABLE':'AUTO UPDATING'} · ${healthy}/${states.length} SOURCES CURRENT · COVERAGE GAPS ${data.gaps.length}${data.conflicts.length?' · SCORES HELD FOR CONFLICT':''}`);
 }
 let received=false;
 async function refresh(){try{const r=await fetch('/api/broadcast',{cache:'no-store',signal:AbortSignal.timeout(20000)});if(!r.ok)throw new Error('Unavailable');const value=await r.json();if(!Array.isArray(value.games)||!Array.isArray(value.sources)||!Array.isArray(value.stories))throw new Error('Invalid snapshot');data=value;offline=false;try{localStorage.setItem('ms-broadcast-last-good',JSON.stringify(value));}catch{}if(!received){showSlide();updateRail();updateTickers();received=true;}}catch{offline=true;}finally{status();}}
