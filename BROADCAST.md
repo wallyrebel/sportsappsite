@@ -30,6 +30,12 @@ Intervals can be exceeded during source failures or scheduling backlog. Last-att
 
 Seeded sources receive a first cloud collection without waiting for their normal interval. The dashboard's “Cloud refresh verified” timestamp distinguishes a successful scheduled fetch from initial local verification. A completed scheduler run may include individual source failures; both counts are shown.
 
+## Seasonal rankings
+
+MississippiFootballRankings.com and MississippiVolleyballRankings.com are checked every 12 hours. Independent computer ranking slides rotate overall and class/private top tens, five teams per page, with source and publication date. Football airs August–December, volleyball August–November. These windows are configurable in the source registry. Prior-year rankings and editions older than 14 days (football) or 10 days (volleyball) are withheld. Failed checks retain last-known rankings within that age limit. Volleyball Private includes MAIS and Northpoint Christian as defined by the source. Rankings are never treated as final scores.
+
+Future softball, baseball and basketball ranking sources can be added with their own adapters and season windows when supplied.
+
 ## School coverage
 
 Official all-sport calendar adapters are configured for Ole Miss, Mississippi State, Southern Miss, Jackson State, Alcorn State, Mississippi Valley State, Delta State, Mississippi Christian University, Millsaps, Blue Mountain Christian University (formerly Blue Mountain College), William Carey, Belhaven, and Mississippi University for Women.
@@ -53,14 +59,14 @@ Sources inspected: [MHSAA](https://www.misshsaa.com/), [MAIS official scoreboard
 
 ## Sponsors
 
-The user-supplied Casey Lott injury-law ad alternates with “Your ad here — 662-587-6575” every 20 seconds in the bottom-right sidebar. The two ads also alternate in the main story panel for 15 seconds every five minutes, leaving the header and tickers visible. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
+The user-supplied Casey Lott injury-law ad alternates with “Your ad here — 662-587-6575” every 20 seconds in the bottom-right sidebar. The two ads also alternate in the main story panel for 15 seconds every 15 minutes, leaving the header and tickers visible. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
 
-Edit `public/broadcast-sponsors.json` and publish through the site's normal Git deployment. The browser rechecks this file every minute. Existing homepage advertisers are not silently enrolled in broadcast placements. Empty inventory displays a house ad.
+Edit `public/broadcast-sponsors.json` and publish through the site's normal Git deployment. The browser rechecks this file every minute. Existing homepage advertisers are not silently enrolled in broadcast placements. Empty inventory displays a house ad. Steven Eaton / Modern Woodmen, Pulliam Sheetrock Service and Mama Justice also participate in both rotations using the supplied artwork.
 
 ```json
 {
   "sidebarSeconds": 20,
-  "fullscreenEverySeconds": 300,
+  "fullscreenEverySeconds": 900,
   "fullscreenSeconds": 15,
   "sponsors": [{
     "name": "Sponsor name",

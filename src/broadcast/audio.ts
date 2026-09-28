@@ -1,5 +1,6 @@
 // Supply a licensed track in broadcast-audio.json. No autoplay audio until explicitly enabled.
 const player=document.getElementById('broadcast-audio') as HTMLAudioElement;
+player.loop=true;
 const query=new URLSearchParams(location.search);
 const muted=query.get('audio')==='off';
 let desired=false,loadedSrc='';

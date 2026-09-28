@@ -17,6 +17,7 @@
     "@astrojs/cloudflare": "^12.6.12",
     "@astrojs/sitemap": "^3.7.0",
     "@tailwindcss/vite": "^4.2.0",
+    "acorn": "^8.18.0",
     "astro": "^5.17.1",
     "cheerio": "^1.2.0",
     "devalue": "^6.0.2",

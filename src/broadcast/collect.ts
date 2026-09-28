@@ -1,5 +1,6 @@
 import {centralDate,shiftDate,type Source,type Snapshot,type Game} from './model';
 import {parseWordpress,parseMaxpreps,maxprepsDates,parseMais,parseMaccc,parseSidearm,parseCalendar,monitorMais,parseMileSplit} from './parsers';
+import {parseFootballRankings,parseVolleyballRankings,volleyballBundle} from './rankings';
 
 export async function boundedText(response:Response,limit=2_500_000):Promise<string>{
   if(!response.ok){await response.body?.cancel();throw new Error(`Source HTTP ${response.status}`);}
@@ -12,6 +13,9 @@ export async function collect(source:Source,previous?:Snapshot,now=new Date(),re
   const stamp=now.toISOString(),today=centralDate(now);let requests=0;
   const get=async(url:string)=>{requests++;return boundedText(await request(url,{signal:AbortSignal.timeout(18000),headers:{Accept:'text/html,application/json','User-Agent':'MississippiSportsBroadcast/1.0 (+https://mississippisportsapp.com/broadcast/status)'}}));};
   let games:Game[]=[],stories=previous?.stories||[];
+  let rankings=previous?.rankings||[];
+  if(source.kind==='rankings-football')rankings=[parseFootballRankings(await get(source.url),source,stamp)];
+  if(source.kind==='rankings-volleyball'){const html=await get(source.url);rankings=[parseVolleyballRankings(html,await get(volleyballBundle(html,source)),source,stamp)];}
   if(source.kind==='wordpress')stories=parseWordpress(await get(source.url));
   if(source.kind==='mais')games=parseMais(await get(source.url),source,stamp);
   if(source.kind==='sidearm')games=parseSidearm(await get(source.url),source,stamp);
@@ -47,5 +51,5 @@ export async function collect(source:Source,previous?:Snapshot,now=new Date(),re
     games.push(...(previous?.games||[]).filter(g=>!scanned.has(g.date)));
   }
   games=[...new Map(games.filter(g=>g.date>=shiftDate(today,-7)&&g.date<=shiftDate(today,14)).map(g=>[g.id,g])).values()];
-  return {sourceId:source.id,games,stories,lastSuccess:stamp,lastAttempt:stamp,error:null,failures:0,requests};
+  return {sourceId:source.id,games,stories,rankings,lastSuccess:stamp,lastAttempt:stamp,error:null,failures:0,requests};
 }

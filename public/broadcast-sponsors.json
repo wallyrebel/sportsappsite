@@ -1,20 +1,53 @@
 {
   "sidebarSeconds": 20,
-  "fullscreenEverySeconds": 300,
+  "fullscreenEverySeconds": 900,
   "fullscreenSeconds": 15,
   "sponsors": [
     {
       "name": "Casey Lott · Injury Law",
       "image": "/sponsors/broadcast/casey-lott-injury-law.png",
       "fullscreenImage": "/sponsors/broadcast/casey-lott-injury-law.png",
-      "placements": ["sidebar", "fullscreen"],
+      "placements": [
+        "sidebar",
+        "fullscreen"
+      ],
       "active": true
     },
     {
       "name": "Your ad here",
       "headline": "Your ad here",
       "phone": "662-587-6575",
-      "placements": ["sidebar", "fullscreen"],
+      "placements": [
+        "sidebar",
+        "fullscreen"
+      ],
+      "active": true
+    },
+    {
+      "name": "Steven Eaton · Modern Woodmen",
+      "image": "/sponsors/broadcast/steven-eaton-modern-woodmen.jpg",
+      "placements": [
+        "sidebar",
+        "fullscreen"
+      ],
+      "active": true
+    },
+    {
+      "name": "Pulliam Sheetrock Service",
+      "image": "/sponsors/broadcast/pulliam-sheetrock.webp",
+      "placements": [
+        "sidebar",
+        "fullscreen"
+      ],
+      "active": true
+    },
+    {
+      "name": "Mama Justice",
+      "image": "/sponsors/broadcast/mama-justice.webp",
+      "placements": [
+        "sidebar",
+        "fullscreen"
+      ],
       "active": true
     }
   ]

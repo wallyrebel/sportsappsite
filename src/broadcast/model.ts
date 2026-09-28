@@ -7,17 +7,21 @@ export interface Game {
   result?: string; event?: boolean; conflict?: boolean; stale?: boolean; freshUntil?: string;
 }
 export interface Story { id: number; title: string; url: string; image: string | null; publishedAt: string; }
+export interface RankingEntry {rank:number;team:string;classification:string;record:string;rating:number;}
+export interface Ranking {sourceId:string;source:string;sourceUrl:string;sport:string;publishedAt:string;observedAt:string;entries:RankingEntry[];stale?:boolean;}
 export interface Source {
-  id: string; name: string; url: string; kind: 'wordpress' | 'maxpreps' | 'mais' | 'mais-monitor' | 'maccc' | 'sidearm' | 'calendar' | 'milesplit';
-  level?: Level; sport?: string; school?: string; intervalMinutes: number; note: string;
+  id: string; name: string; url: string; kind: 'wordpress' | 'maxpreps' | 'mais' | 'mais-monitor' | 'maccc' | 'sidearm' | 'calendar' | 'milesplit' | 'rankings-football' | 'rankings-volleyball';
+  level?: Level; sport?: string; school?: string; intervalMinutes: number; note: string; seasonMonths?:number[]; rankingMaxAgeDays?:number;
 }
 export interface Snapshot {
   sourceId: string; games: Game[]; stories: Story[]; lastSuccess: string | null;
   lastAttempt: string; error: string | null; failures: number; requests: number;
   runtimeAttempted?: boolean; runtimeSuccess?: string;
+  rankings?: Ranking[];
 }
-export interface Health extends Source { lastSuccess: string | null; lastAttempt: string | null; runtimeSuccess: string | null; error: string | null; failures: number; count: number; state: 'healthy' | 'empty' | 'stale' | 'error' | 'pending'; }
-export interface BroadcastData { generatedAt: string; games: Game[]; stories: Story[]; sources: Health[]; gaps: {name:string; url:string; note:string}[]; conflicts: Game[]; collector?:{lastStarted:string;lastFinished:string|null;processed:number;failed:number}; }
+export interface Health extends Source { lastSuccess: string | null; lastAttempt: string | null; runtimeSuccess: string | null; error: string | null; failures: number; count: number; state: 'healthy' | 'empty' | 'stale' | 'error' | 'pending' | 'off-season'; }
+export interface BroadcastData { generatedAt: string; games: Game[]; stories: Story[]; rankings?:Ranking[]; sources: Health[]; gaps: {name:string; url:string; note:string}[]; conflicts: Game[]; collector?:{lastStarted:string;lastFinished:string|null;processed:number;failed:number}; }
+export function inSeason(source:Source,now=new Date()):boolean{return !source.seasonMonths||source.seasonMonths.includes(Number(centralDate(now).slice(5,7)));}
 
 export function centralDate(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {timeZone:'America/Chicago', year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
@@ -40,8 +44,9 @@ export function mergeData(sources: Source[], snapshots: Snapshot[], gaps: Broadc
   const today=centralDate(now), byId=new Map(snapshots.map(s=>[s.sourceId,s]));
   const health: Health[]=sources.map(s=>{
     const v=byId.get(s.id); const stale=!v?.lastSuccess || now.getTime()-Date.parse(v.lastSuccess)>Math.max(s.intervalMinutes*3,90)*60000;
-    const count=s.kind==='wordpress'?v?.stories.length??0:v?.games.length??0;
-    return {...s,lastSuccess:v?.lastSuccess??null,lastAttempt:v?.lastAttempt??null,runtimeSuccess:v?.runtimeSuccess??null,error:v?.error??null,failures:v?.failures??0,count,state:!v?'pending':v.error?'error':stale?'stale':count?'healthy':'empty'};
+    const count=s.kind==='wordpress'?v?.stories.length??0:s.kind.startsWith('rankings-')?v?.rankings?.reduce((n,r)=>n+r.entries.length,0)??0:v?.games.length??0;
+    const oldRanking=v?.rankings?.some(r=>r.publishedAt.slice(0,4)!==today.slice(0,4)||r.publishedAt<shiftDate(today,-(s.rankingMaxAgeDays||14)));
+    return {...s,lastSuccess:v?.lastSuccess??null,lastAttempt:v?.lastAttempt??null,runtimeSuccess:v?.runtimeSuccess??null,error:v?.error??null,failures:v?.failures??0,count,state:!inSeason(s,now)?'off-season':!v?'pending':v.error?'error':stale||oldRanking?'stale':count?'healthy':'empty'};
   });
   const games=snapshots.flatMap(s=>s.games).filter(g=>g.date>=shiftDate(today,-7)&&g.date<=shiftDate(today,14)).map(g=>{
     const state=health.find(s=>s.id===g.sourceId)?.state;
@@ -64,5 +69,6 @@ export function mergeData(sources: Source[], snapshots: Snapshot[], gaps: Broadc
     output.push([...group].sort((a,b)=>Number(b.status==='final')-Number(a.status==='final')||b.observedAt.localeCompare(a.observedAt))[0]);
   }
   const stories=[...new Map(snapshots.flatMap(s=>s.stories).map(s=>[s.id,s])).values()].filter(s=>Date.parse(s.publishedAt)<=now.getTime()).sort((a,b)=>b.publishedAt.localeCompare(a.publishedAt));
-  return {generatedAt:now.toISOString(),games:output.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)),stories,sources:health,gaps,conflicts:output.filter(g=>g.conflict)};
+  const rankings=snapshots.flatMap(s=>s.rankings||[]).filter(r=>{const source=sources.find(s=>s.id===r.sourceId);return source&&inSeason(source,now)&&r.publishedAt.slice(0,4)===today.slice(0,4)&&r.publishedAt>=shiftDate(today,-(source.rankingMaxAgeDays||14));}).map(r=>({...r,stale:health.find(s=>s.id===r.sourceId)?.state!=='healthy'}));
+  return {generatedAt:now.toISOString(),games:output.sort((a,b)=>a.date.localeCompare(b.date)||a.id.localeCompare(b.id)),stories,rankings,sources:health,gaps,conflicts:output.filter(g=>g.conflict)};
 }
