@@ -1,4 +1,4 @@
-import {centralDate,type BroadcastData,type Game} from './model';
+import {centralDate,shiftDate,type BroadcastData,type Game} from './model';
 const el=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const text=(id:string,value:string)=>{el(id).textContent=value;};
 const channel=el('channel');
@@ -9,7 +9,9 @@ let scoreAnimation:Animation|undefined,newsAnimation:Animation|undefined;
 const dateLabel=(date:string)=>new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',timeZone:'UTC'}).format(new Date(date.slice(0,10)+'T12:00:00Z'));
 function safeUrl(value:string){try{const u=new URL(value,location.origin);return u.protocol==='https:'||u.origin===location.origin?u.href:null;}catch{return null;}}
 function image(id:string,url:string|null){const img=el<HTMLImageElement>(id);if(!url||!safeUrl(url)){img.removeAttribute('src');img.style.visibility='hidden';return;}if(img.getAttribute('src')!==url){img.style.visibility='hidden';img.onload=()=>{img.style.visibility='visible';};img.onerror=()=>{img.style.visibility='hidden';};img.src=url;}}
-function available(kind:'final'|'scheduled'|'result'):Game[]{const today=centralDate();return(data?.games||[]).filter(g=>!g.conflict&&g.status===kind&&(kind!=='scheduled'||g.date>=today)).sort((a,b)=>kind!=='scheduled'?b.date.localeCompare(a.date):a.date.localeCompare(b.date));}
+function available(kind:'final'|'scheduled'|'result'):Game[]{const today=centralDate();const games=(data?.games||[]).filter(g=>!g.conflict&&g.status===kind&&g.date>=shiftDate(today,-7)&&(kind!=='scheduled'||g.date>=today)).sort((a,b)=>kind!=='scheduled'?b.date.localeCompare(a.date):a.date.localeCompare(b.date));
+  // Give each level regular airtime even when high-school records greatly outnumber college games.
+  const groups=['High school','JUCO','College'].map(level=>games.filter(g=>g.level===level));const mixed:Game[]=[];for(let i=0;i<Math.max(...groups.map(g=>g.length),0);i++)for(const group of groups)if(group[i])mixed.push(group[i]);return mixed;}
 function card(game:Game){const div=document.createElement('div');div.className='game';
   const meta=document.createElement('div');meta.className='game-meta';meta.textContent=`${game.level} · ${game.sport} · ${dateLabel(game.date)}`;div.append(meta);
   game.teams.forEach((name,i)=>{const row=document.createElement('div');row.className='team';const n=document.createElement('span');n.textContent=name;const s=document.createElement('b');s.textContent=game.status==='final'&&game.scores?String(game.scores[i]):'';row.append(n,s);div.append(row);});
@@ -28,7 +30,7 @@ function updateRail(){const kind=railIndex%2===0?'scheduled':'final',games=avail
 function crawl(id:string,animation:Animation|undefined,speed:number,iterations=Infinity){animation?.cancel();const node=el(id),width=node.scrollWidth,start=node.parentElement!.clientWidth;return node.animate([{transform:`translateX(${start}px)`},{transform:`translateX(-${width}px)`}],{duration:(width+start)/speed*1000,iterations});}
 function updateTickers(){
   const kind=(['final','scheduled','result'] as const)[tickerIndex%3];const games=available(kind);const root=el('score-ticker');root.replaceChildren();text('ticker-label',kind==='final'?'FINALS':kind==='result'?'RESULTS':'UP NEXT');
-  for(const g of page(games,Math.floor(tickerIndex/3),6)){const span=document.createElement('span');span.className='ticker-item';const meta=document.createElement('small');meta.textContent=`${g.sport.toUpperCase()} · ${dateLabel(g.date)} · ${g.source}`;span.append(meta,document.createTextNode(g.status==='final'&&g.scores?`${g.teams[0]} ${g.scores[0]} — ${g.teams[1]} ${g.scores[1]} · FINAL`:`${g.teams.join(g.event?' · ':' vs ')} · ${g.status==='result'?g.result:g.time}`));root.append(span);}
+  for(const g of page(games,Math.floor(tickerIndex/3),6)){const span=document.createElement('span');span.className='ticker-item';const meta=document.createElement('small');meta.textContent=`${g.sport.toUpperCase()} · ${dateLabel(g.date)} · ${g.source}${Date.now()-Date.parse(g.observedAt)>3*3600000?' · LAST KNOWN':''}`;span.append(meta,document.createTextNode(g.status==='final'&&g.scores?`${g.teams[0]} ${g.scores[0]} — ${g.teams[1]} ${g.scores[1]} · FINAL`:`${g.teams.join(g.event?' · ':' vs ')} · ${g.status==='result'?g.result:g.time}`));root.append(span);}
   if(!root.childNodes.length)root.textContent='Awaiting source-reported games • Missing coverage is listed at /broadcast/status';
   scoreAnimation=crawl('score-ticker',scoreAnimation,95,1);void scoreAnimation.finished.then(updateTickers).catch(()=>{});tickerIndex++;
   const news=(data?.stories||[]).map(s=>s.title).join('     •     ')||'Sports Mississippi • Your state. Your teams.';if(el('news-ticker').textContent!==news||!newsAnimation){text('news-ticker',news);newsAnimation=crawl('news-ticker',newsAnimation,80);}

@@ -29,7 +29,7 @@ export function parseMaxpreps(raw:string,source:Source,now:string):Game[]{
 export function maxprepsDates(raw:string,source:Source):string[]{const $=load(raw);return [...new Set($('a[href]').map((_,el)=>{try{const u=new URL($(el).attr('href')!,source.url);if(u.pathname!==new URL(source.url).pathname)return '';const d=u.searchParams.get('date')?.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);return d?`${d[3]}-${d[1].padStart(2,'0')}-${d[2].padStart(2,'0')}`:'';}catch{return '';}}).get().filter(Boolean))];}
 export function parseMais(raw:string,source:Source,now:string):Game[]{
   const $=load(raw);if(!/Winning Team/.test($.root().text())||!/Losing Team/.test($.root().text()))throw new Error('MAIS final-results table not recognized');
-  const out:Game[]=[];$('tr').each((_,el)=>{const c=$(el).children('td').map((_,e)=>clean($(e).text())).get();if(c.length!==7||!/^\d{4}-\d{2}-\d{2}$/.test(c[0])||!['Varsity','A-Game','HSB','HSG'].includes(c[6]))return;const a=score(c[2]),b=score(c[5]);if(a===null||b===null||!c[1]||!c[4])return;out.push({...base(source,now,c[0]),id:`${source.id}:${c[0]}:${c[1]}:${c[4]}`,teams:[c[1],c[4]],scores:[a,b],status:'final',time:'Final'});});return out;
+  const out:Game[]=[];const occurrences=new Map<string,number>();$('tr').each((_,el)=>{const c=$(el).children('td').map((_,e)=>clean($(e).text())).get();if(c.length!==7||!/^\d{4}-\d{2}-\d{2}$/.test(c[0])||!['Varsity','A-Game','HSB','HSG'].includes(c[6]))return;const a=score(c[2]),b=score(c[5]);if(a===null||b===null||!c[1]||!c[4])return;const key=`${source.id}:${c[0]}:${c[1]}:${c[4]}`,sequence=occurrences.get(key)||0;occurrences.set(key,sequence+1);out.push({...base(source,now,c[0]),id:`${key}:${sequence}`,teams:[c[1],c[4]],scores:[a,b],status:'final',time:'Final'});});return out;
 }
 export function parseMaccc(raw:string,source:Source,now:string,date:string):Game[]{
   const $=load(raw);if(!$('.event-row').length&&!/Composite Schedule|Composite Calendar/i.test($.root().text()))throw new Error('MACCC composite markup missing');
@@ -69,7 +69,7 @@ export function parseCalendar(raw:string,source:Source,now:string):Game[]{
     const label=[v.noplay_text,detail].filter(Boolean).join(' ');
     let status=statusFrom(label,!!scores);
     if(v.status==='C')status='canceled';else if(v.status==='P')status='postponed';
-    else if(scores&&/^[WLT]$/.test(v.result?.status||''))status='final';
+    else if(/^[WLT]$/.test(v.result?.status||''))status=scores?'final':'missing';
     else if(v.result?.status==='N'&&detail)status='result';
     const title=String(v.sport.title),short=String(v.sport.shortname||'');
     const sport=/women|men|football|baseball|softball/i.test(title)?title:(short.startsWith('w')?"Women's ":short.startsWith('m')?"Men's ":'')+title;

@@ -1,6 +1,7 @@
 # Mississippi Sports broadcast
 
-Display: **https://mississippisportsapp.com/broadcast**  
+Display: **https://mississippisportsapp.com/broadcast**
+
 Source-health dashboard: **https://mississippisportsapp.com/broadcast/status**
 
 In vMix 28, add a **Web Browser** input, paste the display URL, and set the browser dimensions to **1920 × 1080**. The page supplies video graphics; vMix handles the custom RTMP output. It has no audio track. Leave browser audio muted unless audio is added intentionally later. The website and collector do not start vMix or an RTMP stream.
@@ -79,12 +80,12 @@ Deployment/recovery:
 
 1. `npm ci` and `npm run types:broadcast`.
 2. `npm run test:broadcast` and `npm run check:broadcast`.
-3. Apply `workers/broadcast/migrations/0001_broadcast.sql` to D1 when provisioning a new database.
+3. Apply all SQL files in `workers/broadcast/migrations/` to D1 in numeric order when provisioning a new database.
 4. `npm run deploy:broadcast`. Verify the scheduler `*/5 * * * *` and D1 binding.
 5. Ensure Pages project `sportsappsite` has `BROADCAST` service binding to `mississippi-sports-broadcast` in preview and production.
 6. Publish the website through Git/Cloudflare Pages. Check `/api/broadcast` and `/broadcast/status`.
 
-Source failure does not trigger aggressive immediate retries. Fetches have deadlines and body-size limits. Old snapshots are retained only within the published date window. Tests cover false finals, zero scores, national-card exclusion, varsity filtering, conflicts, doubleheaders, structured college results and oversized responses. `npm run verify:broadcast` performs optional live source checks and saves local-only research snapshots; it is never part of a website build.
+Source failure does not trigger aggressive immediate retries. Fetches have deadlines and body-size limits. Old snapshots are retained only within the published date window. Tests cover false finals, zero scores, national-card exclusion, varsity filtering, conflicts, doubleheaders, structured college results, race listings and oversized responses. `npm run verify:broadcast` performs optional live source checks and saves local-only research snapshots; it is never part of a website build.
 
 Cloudflare cron configuration can take several minutes to propagate. A configured schedule alone is not proof of an executed refresh: inspect increasing `lastAttempt`/`lastSuccess` in D1 or the dashboard. HTML parsing may exceed the Workers Free CPU limit; check actual Worker outcomes and the existing account plan. No paid plan upgrade is performed by the deployment.
 

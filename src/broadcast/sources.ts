@@ -23,4 +23,5 @@ export const GAPS = [
   {name:'MAIS archery and cheer/dance',url:'https://home.msais.org/test2/code/athletics/handbook_entire.php',note:'In scope for boys/girls varsity coverage. No structured public schedule/results feed verified yet; needs official championship or school feeds.'},
   {name:'NJCAA national events / missing JUCO submissions',url:'https://www.njcaa.org/',note:'MACCC composite is connected. National championships, individual results and events absent from MACCC need supplemental school/NJCAA adapters.'},
   {name:'Four-year school reporting gaps',url:'https://www.ncaa.com/schools',note:'All 15 identified Mississippi NCAA/NAIA four-year schools are configured. Source health below reports actual successful collection. Meet results retain source wording; numeric head-to-head finals require explicit W/L/T and two scores. Schools may omit or delay events.'}
+  ,{name:'Rust current calendar missing',url:'https://rustathletics.com/composite',note:'Official composite returned no current events while navigation linked older seasons. Rust remains in scope, but current coverage requires an updated school or conference feed.'}
 ];

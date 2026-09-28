@@ -16,7 +16,7 @@ export interface Snapshot {
   lastAttempt: string; error: string | null; failures: number; requests: number;
 }
 export interface Health extends Source { lastSuccess: string | null; lastAttempt: string | null; error: string | null; failures: number; count: number; state: 'healthy' | 'empty' | 'stale' | 'error' | 'pending'; }
-export interface BroadcastData { generatedAt: string; games: Game[]; stories: Story[]; sources: Health[]; gaps: {name:string; url:string; note:string}[]; conflicts: Game[]; }
+export interface BroadcastData { generatedAt: string; games: Game[]; stories: Story[]; sources: Health[]; gaps: {name:string; url:string; note:string}[]; conflicts: Game[]; collector?:{lastStarted:string;lastFinished:string|null;processed:number;failed:number}; }
 
 export function centralDate(now = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', {timeZone:'America/Chicago', year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
