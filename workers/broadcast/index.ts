@@ -14,7 +14,7 @@ async function refresh(env:Env,now:Date){
   // During initialization verify each provider family promptly, then fill in oldest due sources.
   const families=[...new Set(others.map(s=>s.kind))];const selected=families.map(kind=>others.find(s=>s.kind===kind)!).slice(0,6);
   for(const s of others){if(selected.length>=6)break;if(!selected.includes(s))selected.push(s);}
-  const batch=[...(news?[news]:[]),...selected];
+  let estimated=0;const batch=[...(news?[news]:[]),...selected].filter(s=>{const cost=s.kind==='maccc'?11:s.kind==='maxpreps'?5:s.kind==='calendar'||s.kind==='milesplit'?3:1;if(estimated+cost>32)return false;estimated+=cost;return true;});
   let failed=0;
   for(const source of batch){
     const old=byId.get(source.id);let next:Snapshot;

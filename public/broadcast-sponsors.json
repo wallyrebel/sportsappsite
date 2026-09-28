@@ -9,6 +9,13 @@
       "fullscreenImage": "/sponsors/broadcast/casey-lott-injury-law.png",
       "placements": ["sidebar", "fullscreen"],
       "active": true
+    },
+    {
+      "name": "Your ad here",
+      "headline": "Your ad here",
+      "phone": "662-587-6575",
+      "placements": ["sidebar", "fullscreen"],
+      "active": true
     }
   ]
 }

@@ -4,7 +4,7 @@ export interface Game {
   id: string; sourceId: string; source: string; sourceUrl: string; observedAt: string;
   level: Level; sport: string; date: string; time: string;
   teams: [string, string]; scores: [number, number] | null; status: GameStatus;
-  result?: string; event?: boolean; conflict?: boolean; stale?: boolean;
+  result?: string; event?: boolean; conflict?: boolean; stale?: boolean; freshUntil?: string;
 }
 export interface Story { id: number; title: string; url: string; image: string | null; publishedAt: string; }
 export interface Source {
@@ -45,9 +45,10 @@ export function mergeData(sources: Source[], snapshots: Snapshot[], gaps: Broadc
   });
   const games=snapshots.flatMap(s=>s.games).filter(g=>g.date>=shiftDate(today,-7)&&g.date<=shiftDate(today,14)).map(g=>{
     const state=health.find(s=>s.id===g.sourceId)?.state;
-    const stale=state==='error'||state==='stale'||now.getTime()-Date.parse(g.observedAt)>3*3600000;
+    const source=sources.find(s=>s.id===g.sourceId),freshUntil=new Date(Date.parse(g.observedAt)+Math.max(180,(source?.intervalMinutes||60)*2)*60000).toISOString();
+    const stale=state==='error'||state==='stale'||now.getTime()>Date.parse(freshUntil);
     // An unplayed record from yesterday is not an upcoming game or a presumed final.
-    return {...g,stale,status:g.status==='scheduled'&&g.date<today?'missing' as const:g.status};
+    return {...g,stale,freshUntil,status:g.status==='scheduled'&&g.date<today?'missing' as const:g.status};
   });
   const groups=new Map<string,Game[]>();
   for(const g of games){ const k=[g.level,g.sport.toLowerCase(),g.date,...g.teams.map(teamKey).sort()].join('|'); const a=groups.get(k)||[];a.push(g);groups.set(k,a); }

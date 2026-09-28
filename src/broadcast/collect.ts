@@ -40,8 +40,8 @@ export async function collect(source:Source,previous?:Snapshot,now=new Date(),re
     games.push(...(previous?.games||[]).filter(g=>!scanned.has(g.date)));
   }
   if(source.kind==='maccc'){
-    // Today, yesterday and tomorrow every pass; rotate other dates for corrections and advance fixtures.
-    const offsets=[-1,0,1,[-3,-2,2,3,4,5,6,7][Math.floor(now.getTime()/1800000)%8]];
+    // Twice-daily collection covers recent finals and the coming week on each pass.
+    const offsets=Array.from({length:11},(_,i)=>i-3);
     const scanned=new Set(offsets.map(n=>shiftDate(today,n)));
     for(const date of scanned)games.push(...parseMaccc(await get(source.url+'?d='+date),source,stamp,date));
     games.push(...(previous?.games||[]).filter(g=>!scanned.has(g.date)));

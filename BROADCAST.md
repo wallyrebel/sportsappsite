@@ -4,27 +4,27 @@ Display: **https://mississippisportsapp.com/broadcast**
 
 Source-health dashboard: **https://mississippisportsapp.com/broadcast/status**
 
-In vMix 28, add a **Web Browser** input, paste the display URL, and set the browser dimensions to **1920 × 1080**. The page supplies video graphics; vMix handles the custom RTMP output. It has no audio track. Leave browser audio muted unless audio is added intentionally later. The website and collector do not start vMix or an RTMP stream.
+In vMix 28, add a **Web Browser** input, paste the display URL, and set the browser dimensions to **1920 × 1080**. The page supplies video graphics; vMix handles the custom RTMP output. The supplied Game Time Live music loop is enabled; enable the Web Browser input audio in vMix. The website and collector do not start vMix or an RTMP stream.
 
 ## What runs automatically
 
 Cloudflare Worker `mississippi-sports-broadcast` runs every five minutes, independently of a browser or vMix. It selects sources whose refresh interval has elapsed, prioritizes news, then processes up to six other sources in oldest-attempt order. Data is stored in D1 `mississippi-sports-broadcast`. Pages uses its `BROADCAST` service binding to serve `/api/broadcast`.
 
-The display polls the API every minute. It cycles the 20 latest SportsMississippi featured images/headlines, final scoreboards, upcoming events, published meet results, sidebar sponsors and eligible full-screen sponsors. The headline crawl appears below the Mississippi Sports Group header; scores/upcoming events remain at the bottom. It retains the last successful browser snapshot on a network failure and labels it offline. Neither a page visit nor a site rebuild is needed to collect scores.
+The display polls the API every minute. It cycles the 20 latest SportsMississippi featured images/headlines, final scoreboards, upcoming events, published meet results, sidebar sponsors and main-panel sponsor slides. The headline crawl appears below the Mississippi Sports Group header; scores/upcoming events remain at the bottom. It retains the last successful browser snapshot on a network failure and labels it offline. Neither a page visit nor a site rebuild is needed to collect scores.
 
 Target collection intervals (not a guarantee of upstream reporting speed):
 
 | Sources | Interval | What is imported |
 | --- | --- | --- |
 | SportsMississippi WordPress | 10 minutes | 20 recent headlines, dates, featured images |
-| MaxPreps Mississippi | 60 minutes | Football, girls volleyball, boys/girls basketball, baseball, softball, boys/girls soccer; explicit finals and schedules |
-| MAIS official scoreboards | 60 minutes | Submitted varsity/A-team football, softball, baseball, boys/girls basketball and soccer finals |
-| MAIS remaining result pages | 3 hours | Monitors for published results; unvalidated formats are withheld and flagged |
-| MACCC | 30 minutes | All-sport composite; today/yesterday/tomorrow each pass plus a rotating date |
-| Official four-year calendars | 60 minutes | All sports published by each school, including meet results |
-| MileSplit MS | 3 hours | Public HS cross-country/indoor/outdoor meet listings and posted-result notices |
+| MaxPreps Mississippi | 12 hours | Football, girls volleyball, boys/girls basketball, baseball, softball, boys/girls soccer; explicit finals and schedules |
+| MAIS official scoreboards | 12 hours | Submitted varsity/A-team football, softball, baseball, boys/girls basketball and soccer finals |
+| MAIS remaining result pages | 12 hours | Monitors for published results; unvalidated formats are withheld and flagged |
+| MACCC | 12 hours | All-sport composite; previous three days through next seven days each pass |
+| Official four-year calendars | 12 hours | All sports published by each school, including meet results |
+| MileSplit MS | 12 hours | Public HS cross-country/indoor/outdoor meet listings and posted-result notices |
 
-Intervals can be exceeded during source failures or scheduling backlog. Last-attempt and last-success timestamps show actual behavior. A successful empty response is labeled **EMPTY**, not proof of complete coverage. Errors retain the previous good data. Stale records carry their original observation timestamp.
+Intervals can be exceeded during source failures or scheduling backlog. Last-attempt and last-success timestamps show actual behavior. A successful empty response is labeled **EMPTY**, not proof of complete coverage. Errors retain the previous good data. Stale records carry their original observation timestamp. Games remain current between twice-daily collections; source failures mark retained games as last-known immediately, and records expire after two collection intervals.
 
 **Cloud execution check, September 28, 2026:** the first scheduled provider checks successfully refreshed WordPress, MAIS football and Ole Miss. MaxPreps, the MACCC composite and MileSplit returned HTTP 403 to the Cloudflare collector despite successful local public-page verification. Their records are last-known data, not verified unattended feeds. The status dashboard surfaces these failures; permitted feed access or alternate official sources are required for reliable automatic updates. MACCC's alternate public scheduling app was inspected but contained copied draft schedules, so it was not silently substituted as confirmed data.
 
@@ -43,7 +43,7 @@ The live registry and coverage notes are in `src/broadcast/sources.ts`. The dash
 - “Confirmed finals” means a trusted source explicitly labels a game final, or an official school reports W/L/T with both numeric scores. It does **not** mean two independent sources verified every game. Every displayed score identifies its source.
 - Scheduled games never receive invented scores. A past scheduled date without a result becomes missing. Canceled/postponed games are not listed as upcoming.
 - Meet placements and race-result links remain distinct from head-to-head finals. MileSplit result notices indicate a results link exists; they do not import paid athlete results or claim to verify a winner.
-- The default game window is the previous seven days and next fourteen days. MaxPreps collects today's page plus two nearest reported dates on either side; a date missing from the public navigation remains a gap. MACCC/Tougaloo rotate additional dates over several hours, so not every day in that window is refreshed on every pass.
+- The default game window is the previous seven days and next fourteen days. MaxPreps collects today's page plus two nearest reported dates on either side; a date missing from the public navigation remains a gap. MACCC/Tougaloo collect the previous three days through next seven days each pass; dates outside that narrower composite window remain a coverage gap.
 - Conflicting numeric results for a confidently matched date/sport/team pairing are held off air and listed in the dashboard. Matching is conservative; differing school names not in the alias registry may remain separate. Same-source doubleheaders are preserved; ambiguous cross-source doubleheaders are withheld.
 - MAIS includes schools outside Mississippi. The official table is association-wide. MaxPreps may also include association/out-of-state opponents. No unverified geographical exclusion is applied to MAIS members.
 - All MAIS sports are in scope, but free public coverage is incomplete. Volleyball's official table currently contains individual set scores, not match finals. Several official meet-result pages are empty. Archery and cheer/dance still need verified schedule/result feeds. MaxPreps and MileSplit supplement MAIS where listed; they do not guarantee every MAIS event.
@@ -53,7 +53,7 @@ Sources inspected: [MHSAA](https://www.misshsaa.com/), [MAIS official scoreboard
 
 ## Sponsors
 
-The user-supplied Casey Lott injury-law ad is active in both the sidebar and a 15-second full-screen slide every five minutes. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
+The user-supplied Casey Lott injury-law ad alternates with “Your ad here — 662-587-6575” every 20 seconds in the bottom-right sidebar. The two ads also alternate in the main story panel for 15 seconds every five minutes, leaving the header and tickers visible. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
 
 Edit `public/broadcast-sponsors.json` and publish through the site's normal Git deployment. The browser rechecks this file every minute. Existing homepage advertisers are not silently enrolled in broadcast placements. Empty inventory displays a house ad.
 
