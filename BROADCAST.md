@@ -59,7 +59,7 @@ Sources inspected: [MHSAA](https://www.misshsaa.com/), [MAIS official scoreboard
 
 ## Sponsors
 
-The user-supplied Casey Lott injury-law ad alternates with “Your ad here — 662-587-6575” every 20 seconds in the bottom-right sidebar. The two ads also alternate in the main story panel for 15 seconds every 15 minutes, leaving the header and tickers visible. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
+The user-supplied Casey Lott injury-law ad alternates with “Your ad here — 662-576-1554” every 20 seconds in the bottom-right sidebar. The two ads also alternate in the main story panel for 15 seconds every 15 minutes, leaving the header and tickers visible. Its complete square artwork is displayed without cropping. No end date was supplied; the placement remains active until changed.
 
 Edit `public/broadcast-sponsors.json` and publish through the site's normal Git deployment. The browser rechecks this file every minute. Existing homepage advertisers are not silently enrolled in broadcast placements. Empty inventory displays a house ad. Steven Eaton / Modern Woodmen, Pulliam Sheetrock Service and Mama Justice also participate in both rotations using the supplied artwork.
 
