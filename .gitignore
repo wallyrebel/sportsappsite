@@ -22,3 +22,14 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Local broadcast research and worker state (not publication data)
+.research/
+.wrangler/
+.dev.vars
+worker-configuration.d.ts
+workers/broadcast/worker-configuration.d.ts
+research.mjs
+inspect.mjs
+probe-*.mjs
+source-probe.mjs

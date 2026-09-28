@@ -1,0 +1,12 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "mississippi-sports-broadcast",
+  "main": "index.ts",
+  "compatibility_date": "2026-09-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "triggers": {"crons": ["*/5 * * * *"]},
+  "observability": {"enabled": true, "head_sampling_rate": 0.1},
+  "d1_databases": [{"binding":"BROADCAST_DB","database_name":"mississippi-sports-broadcast","database_id":"0dc98700-8294-46bf-9a47-66697138b62d","migrations_dir":"migrations"}],
+  "vars": {"ALERT_EMAIL":"", "ALERT_FROM":"contact@mississippisportsapp.com"}
+}
