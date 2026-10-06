@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main, codex/mississippi-scoreboard]
-    paths: ['scoreboard/**', '.github/workflows/scoreboard.yml']
+    paths: ['scoreboard/**', 'tests/scoreboard-integration.test.ts', 'src/broadcast/scoreboard.ts', 'functions/scoreboard/**', '.github/workflows/scoreboard.yml']
 permissions:
   contents: write
 concurrency:

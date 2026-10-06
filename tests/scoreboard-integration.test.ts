@@ -11,4 +11,5 @@ test('broadcast includes current high-school scores with correct orientation and
   const result=withHighSchoolScores(data,snapshot,now);
   assert.equal(result.games.length,2);assert.equal(result.stories[0].title,'News');
   const game=result.games.find(g=>g.id==='hs')!;assert.equal(game.status,'in-progress');assert.deepEqual(game.scores,[0,2]);assert.equal(game.stale,false);
+  assert.equal(withHighSchoolScores(data,snapshot,now,true).games.find(g=>g.id==='hs')!.stale,true);
 });
