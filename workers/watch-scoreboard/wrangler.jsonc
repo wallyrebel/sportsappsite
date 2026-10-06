@@ -7,7 +7,6 @@
   "preview_urls": false,
   "services": [{ "binding": "ASSETS", "service": "mississippi-sports-tv" }],
   "routes": [
-    { "pattern": "watch.mississippisportsapp.com/", "zone_name": "mississippisportsapp.com" },
-    { "pattern": "watch.mississippisportsapp.com/watch/*", "zone_name": "mississippisportsapp.com" }
+    { "pattern": "watch.mississippisportsapp.com/*", "zone_name": "mississippisportsapp.com" }
   ]
 }

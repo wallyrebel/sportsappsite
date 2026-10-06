@@ -9,7 +9,12 @@ test('watch page gets the ticker while video embeds and catalogs stay intact',as
     const page=await mf.dispatchFetch('https://example.com/'),text=await page.text();
     assert.equal((text.match(/id="ms-scoreboard"/g)??[]).length,1);assert.ok(text.indexOf('ms-scoreboard')>text.indexOf('id="video"'));assert.ok(text.indexOf('ms-scoreboard')<text.indexOf('class="library"'));
     assert.match(page.headers.get('Content-Security-Policy'),/frame-src 'self' https:\/\/mississippisportsapp.com/);
+    for(const path of ['/?autoplay=1&muted=1','/watch/sports/?autoplay=1']){
+      const queryPage=await mf.dispatchFetch('https://example.com'+path);
+      assert.equal(((await queryPage.text()).match(/id="ms-scoreboard"/g)??[]).length,1);
+    }
     assert.equal(await (await mf.dispatchFetch('https://example.com/embed/sports')).text(),html);
+    assert.equal(await (await mf.dispatchFetch('https://example.com/embed/sports?autoplay=1')).text(),html);
     assert.equal(await (await mf.dispatchFetch('https://example.com/api/catalog.json')).text(),'{}');
   }finally{await mf.dispose();}
 });
