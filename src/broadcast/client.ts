@@ -32,7 +32,14 @@ function showSlide(){
   else if(!showRanking&&data?.stories.length){const s=data.stories[storyIndex%data.stories.length];image('story-image',s.image);text('headline',s.title);text('story-date',dateLabel(s.publishedAt));storyIndex++;}
   slideStart=performance.now();slide++;
 }
-function updateRail(){const kinds=boardKinds().filter(k=>k!=='result'),kind=kinds[railIndex%kinds.length]??'scheduled',games=available(kind);text('rail-title',kind==='in-progress'?'IN PROGRESS':kind==='scheduled'?'UP NEXT':'LATEST FINALS');cards('rail-games',page(games,Math.floor(railIndex/Math.max(1,kinds.length)),2),'Your state. Your teams.');railIndex++;}
+function updateRail(){
+  const kinds=(['in-progress','final'] as const).filter(kind=>available(kind).length);
+  const kind=kinds[railIndex%Math.max(1,kinds.length)];
+  text('scores-title',kind==='in-progress'?'LIVE SCORES':kind==='final'?'LATEST FINALS':'SCORES');
+  cards('rail-scores',kind?page(available(kind),Math.floor(railIndex/kinds.length),2):[],'No reported scores yet.');
+  cards('rail-games',page(available('scheduled'),railIndex,2),'No upcoming games reported.');
+  railIndex++;
+}
 function crawl(id:string,animation:Animation|undefined,speed:number,iterations=Infinity){animation?.cancel();const node=el(id),width=node.scrollWidth,start=node.parentElement!.clientWidth;return node.animate([{transform:`translateX(${start}px)`},{transform:`translateX(-${width}px)`}],{duration:(width+start)/speed*1000,iterations});}
 function updateTickers(){
   const kinds=boardKinds(),kind=kinds[tickerIndex%kinds.length];const games=available(kind);const root=el('score-ticker');root.replaceChildren();text('ticker-label',kind==='in-progress'?'LIVE':kind==='final'?'FINALS':kind==='result'?'RESULTS':'UP NEXT');
