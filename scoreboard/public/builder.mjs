@@ -1,7 +1,9 @@
 import {GROUPS,SPORTS,centralDate,filterGames} from './shared.mjs';
 const here=new URL('.',import.meta.url);
 const $=id=>document.getElementById(id);
-let group='statewide',data=null,fetchVersion=0,loadedDate=null;
+const initial=new URLSearchParams(location.search);
+let group=Object.hasOwn(GROUPS,initial.get('group'))?initial.get('group'):'statewide',data=null,fetchVersion=0,loadedDate=null;
+if(initial.get('days')==='8')$('date-mode').value='week';
 for(const sport of SPORTS){const option=document.createElement('option');option.value=sport.key;option.textContent=sport.label;$('sport').append(option);}
 $('fixed-date').value=centralDate();$('base-url').value=here.href.replace(/\/$/,'');
 $('date-badge').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'long',month:'short',day:'numeric'}).format(new Date());

@@ -14,10 +14,12 @@ export const SPORTS = [
 // Add more groups here without duplicating the collector or the display.
 export const GROUPS = {
   statewide: {label:'Mississippi',teams:[]},
+  desoto: {label:'DeSoto County',teams:['Center Hill','DeSoto Central','Hernando','Horn Lake','Lake Cormorant','Lewisburg','Olive Branch','Southaven','DeSoto Christian Academy','Northpoint Christian']},
   tippah: {label:'Tippah County',teams:['Ripley','Falkner','Walnut','Pine Grove','Blue Mountain']},
   alcorn: {label:'Alcorn County',teams:['Alcorn Central','Biggersville','Corinth','Kossuth']}
 };
 const ALIASES = {
+  'desoto-christian':'desoto-christian-academy',
   'walnut-attendance-center-wildcats':'walnut', 'walnut-attendance-center':'walnut',
   'ripley-tigers':'ripley', 'falkner-eagles':'falkner', 'pine-grove-panthers':'pine-grove',
   'blue-mountain-cougars':'blue-mountain', 'alcorn-central-golden-bears':'alcorn-central',
