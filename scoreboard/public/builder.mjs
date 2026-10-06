@@ -1,4 +1,4 @@
-import {GROUPS,SPORTS,centralDate,filterGames} from './shared.mjs';
+import {GROUPS,SPORTS,centralDate,filterGames} from './shared.mjs?v=20261006-alcorn';
 const here=new URL('.',import.meta.url);
 const $=id=>document.getElementById(id);
 const initial=new URLSearchParams(location.search);
@@ -9,7 +9,7 @@ $('fixed-date').value=centralDate();$('base-url').value=here.href.replace(/\/$/,
 $('date-badge').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',weekday:'long',month:'short',day:'numeric'}).format(new Date());
 function selectedDate(){return $('date-mode').value==='fixed'?$('fixed-date').value:centralDate();}
 function config(){return {group,teams:$('teams').value.split(',').map(s=>s.trim()).filter(Boolean),sport:$('sport').value,status:$('status').value};}
-function params(){const p=new URLSearchParams({group,sport:$('sport').value,status:$('status').value,theme:$('theme').value,speed:$('speed').value});if(group==='custom')p.set('teams',$('teams').value);if($('date-mode').value==='fixed')p.set('date',$('fixed-date').value);if($('date-mode').value==='week')p.set('days','8');return p;}
+function params(){const p=new URLSearchParams({group,sport:$('sport').value,status:$('status').value,theme:$('theme').value,speed:$('speed').value,v:'20261006-alcorn'});if(group==='custom')p.set('teams',$('teams').value);if($('date-mode').value==='fixed')p.set('date',$('fixed-date').value);if($('date-mode').value==='week')p.set('days','8');return p;}
 function base(){try{const u=new URL($('base-url').value);return /^https?:$/.test(u.protocol)?u.href.replace(/\/$/,''):here.href.replace(/\/$/,'');}catch{return here.href.replace(/\/$/,'');}}
 function embedCode(){
   const p=params(),url=base()+'/embed?'+p.toString();

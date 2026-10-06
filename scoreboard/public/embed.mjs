@@ -1,4 +1,4 @@
-import {GROUPS,centralDate,filterGames,validDate} from './shared.mjs';
+import {GROUPS,centralDate,filterGames,validDate} from './shared.mjs?v=20261006-alcorn';
 const here=new URL('.',import.meta.url);
 const query=new URLSearchParams(location.search);
 const settings={group:query.get('group')??'statewide',teams:(query.get('teams')??'').split(',').map(s=>s.trim()).filter(Boolean),

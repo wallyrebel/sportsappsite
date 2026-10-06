@@ -5,7 +5,7 @@ The `alcorn` preset displays Score Wire, Alcorn County, and the supplied Steven 
 Paste this into a WordPress Custom HTML block:
 
 ```html
-<iframe src="https://mississippisportsapp.com/scoreboard/embed?group=alcorn&amp;days=8" title="Alcorn County scores and upcoming games" width="100%" height="264" style="display:block;border:0;border-radius:8px;"></iframe>
+<iframe src="https://mississippisportsapp.com/scoreboard/embed?group=alcorn&amp;days=8&amp;v=20261006-alcorn" title="Alcorn County scores and upcoming games" width="100%" height="264" style="display:block;border:0;border-radius:8px;"></iframe>
 ```
 
 The feed includes Alcorn Central, Biggersville, Corinth, and Kossuth across the sports reported by the data sources. `days=8` includes today and the next seven days. Scores and schedules update automatically. The image opens at full size when clicked.
