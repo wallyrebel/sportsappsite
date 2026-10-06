@@ -12,7 +12,7 @@ Paste this into a WordPress Custom HTML block or custom site's HTML:
   style="border:0;display:block" loading="eager"></iframe>
 ```
 
-The public URL must be deployed before this works. No WordPress plugin or script permission is needed beyond allowing an iframe in the HTML block.
+The production URL is deployed. No WordPress plugin or script permission is needed beyond allowing an iframe in the HTML block.
 
 For vMix, add a Web Browser input at 1920 × 1080:
 
@@ -26,7 +26,7 @@ Parameters:
 
 | Parameter | Values |
 | --- | --- |
-| `group` | `statewide`, `tippah`, `alcorn`, `custom` |
+| `group` | `statewide`, `desoto`, `tippah`, `alcorn`, `custom` |
 | `teams` | Comma-separated school names for `group=custom` |
 | `days` | `1` (today; default), `8` (today + next seven days) |
 | `date` | Optional fixed YYYY-MM-DD; omit for automatic Central-time date rollover |
@@ -37,7 +37,7 @@ Parameters:
 | `mode` | `vmix` enables the transparent 1920 × 1080 layout |
 | `title` | Optional custom label |
 
-Tippah includes Ripley, Falkner, Walnut, Pine Grove, and Blue Mountain. Alcorn includes Alcorn Central, Biggersville, Corinth, and Kossuth. These presets are public high-school school lists, not a claim to include every private/youth/college team in a county. Either participating school can match, and all collected sports remain eligible. Extend `GROUPS` or use the builder's Custom option for additional teams.
+Tippah includes Ripley, Falkner, Walnut, Pine Grove, and Blue Mountain. Alcorn includes Alcorn Central, Biggersville, Corinth, and Kossuth. DeSoto includes Center Hill, DeSoto Central, Hernando, Horn Lake, Lake Cormorant, Lewisburg, Olive Branch, Southaven, DeSoto Christian Academy, and Northpoint Christian. Presets match these named high schools; source coverage can vary by school. Either participating school can match, and all collected sports remain eligible. Extend `GROUPS` or use the builder's Custom option for additional teams.
 
 ## Automatic collection
 
@@ -65,7 +65,7 @@ The [maxpreps-mcp project](https://github.com/chrischall/maxpreps-mcp) helps dis
 
 An optional standalone Worker uses `npm run deploy:scoreboard` and serves the same interface at its own root. The Pages route and Worker share the feed reader. No new database or paid service is provisioned.
 
-For the separate watch player, embed the same iframe on its webpage. If the ticker is already part of the live video, update the production browser input or deploy this repository's `/broadcast` integration; the player cannot edit graphics already baked into HLS video.
+The separate watch webpage uses `workers/watch-scoreboard/` to insert the same ticker beneath its player. Its small route Worker calls the existing static player through a service binding. See that directory’s README for deployment and rollback.
 
 The main site's existing news, sponsor, audio, college, JUCO, and official association sources remain available. Conflicting cross-source finals use the existing withholding rule.
 

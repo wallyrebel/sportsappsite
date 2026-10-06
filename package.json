@@ -14,7 +14,9 @@
     "verify:broadcast": "node --import tsx scripts/broadcast-verify.ts",
     "types:broadcast": "wrangler types workers/broadcast/worker-configuration.d.ts --config workers/broadcast/wrangler.jsonc",
     "check:broadcast": "tsc -p workers/broadcast/tsconfig.json",
-    "deploy:broadcast": "wrangler deploy --config workers/broadcast/wrangler.jsonc"
+    "deploy:broadcast": "wrangler deploy --config workers/broadcast/wrangler.jsonc",
+    "test:watch-scoreboard": "node --test tests/watch-scoreboard.test.mjs",
+    "deploy:watch-scoreboard": "wrangler deploy --config workers/watch-scoreboard/wrangler.jsonc"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",
