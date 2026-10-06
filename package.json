@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "node scoreboard/scripts/copy-assets.mjs && astro build",
+    "test:scoreboard": "node --test scoreboard/test/*.test.mjs && node --import tsx --test tests/scoreboard-integration.test.ts",
+    "collect:scoreboard": "node scoreboard/scripts/collect.mjs",
+    "deploy:scoreboard": "wrangler deploy --config scoreboard/wrangler.jsonc",
     "preview": "astro preview",
     "astro": "astro",
     "test:broadcast": "node --import tsx --test tests/broadcast.test.ts",
