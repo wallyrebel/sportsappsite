@@ -13,7 +13,7 @@ export const SPORTS = [
 // School-based presets include every sport returned for either participating school.
 // Add more groups here without duplicating the collector or the display.
 export const GROUPS = {
-  statewide: {label:'Mississippi',teams:[]},
+  statewide: {label:'Mississippi',teams:[],sponsor:{image:'./sponsors/casey-lott.png',alt:'Casey Lott, Injury Law. 662-888-8888.'}},
   desoto: {label:'DeSoto County',teams:['Center Hill','DeSoto Central','Hernando','Horn Lake','Lake Cormorant','Lewisburg','Olive Branch','Southaven','DeSoto Christian Academy','Northpoint Christian']},
   tippah: {label:'Tippah County',teams:['Ripley','Falkner','Walnut','Pine Grove','Blue Mountain']},
   alcorn: {label:'Alcorn County',teams:['Alcorn Central','Biggersville','Corinth','Kossuth'],sponsor:{image:'./sponsors/steven-eaton.jpg',alt:'Steven Eaton, Modern Woodmen Fraternal Financial. Career opportunities available. 662-287-0113.'}}
