@@ -33,3 +33,5 @@ research.mjs
 inspect.mjs
 probe-*.mjs
 source-probe.mjs
+.scoreboard-data/
+public/scoreboard/
