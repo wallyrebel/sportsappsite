@@ -6,3 +6,8 @@
 html{background:transparent}body.builder{background:#f1f4f8}
 
 :root{background:transparent}
+/* Sponsor artwork belongs only to the selected county's label column. */
+.has-sponsor .wire{height:264px}.has-sponsor .wire-main{height:232px}.has-sponsor .wire-label{width:208px;padding:8px 16px;align-items:center;text-align:center}.has-sponsor .wire-kicker{margin-bottom:4px}.has-sponsor .wire-label strong{font-size:17px;line-height:18px}.has-sponsor #day-label{display:none}.wire-sponsor{display:block;width:168px;height:168px;margin-top:8px;flex:none}.wire-sponsor img{display:block;width:100%;height:100%;object-fit:contain}.has-sponsor .game-card{display:flex;flex-direction:column;justify-content:center}.has-sponsor .wire-empty{max-width:calc(100vw - 208px)}
+@media(max-width:500px){.has-sponsor .wire-label{width:160px;padding:8px}.has-sponsor .wire-label strong{font-size:15px}.wire-sponsor{width:144px;height:144px}.has-sponsor .wire-empty{max-width:calc(100vw - 160px)}}
+/* Existing short website embeds still show a compact sponsor without clipping. */
+@media(max-height:180px){.has-sponsor:not(.vmix) .wire{height:144px}.has-sponsor:not(.vmix) .wire-main{height:112px}.has-sponsor:not(.vmix) .wire-label{padding:4px 8px}.has-sponsor:not(.vmix) .wire-kicker{font-size:9px;margin-bottom:2px}.has-sponsor:not(.vmix) .wire-label strong{font-size:13px;line-height:14px}.has-sponsor:not(.vmix) .wire-sponsor{width:72px;height:72px;margin-top:4px}}
