@@ -6,6 +6,14 @@ Source-health dashboard: **https://mississippisportsapp.com/broadcast/status**
 
 In vMix 28, add a **Web Browser** input, paste the display URL, and set the browser dimensions to **1920 × 1080**. The page supplies video graphics; vMix handles the custom RTMP output. The supplied Game Time Live music loop is enabled; enable the Web Browser input audio in vMix. The website and collector do not start vMix or an RTMP stream.
 
+## Scores beside Up next
+
+The broadcast display now has separate score and upcoming-game columns in its right sidebar, with sponsors underneath. Reported live games and recent finals rotate in the score column; the Up next column always shows scheduled games. Both paginate automatically every 18 seconds. The lower score crawl and main story/score/ranking rotation continue.
+
+The watch page plays the encoded video from your broadcast system. To bring a changed graphics layout into that video, reload the Web Browser source at https://mississippisportsapp.com/broadcast in the encoder. A viewer refreshing the watch webpage cannot reload the encoder's source. In vMix, use the existing 1920 × 1080 Web Browser input; do not add another music-enabled input on top of the existing one. A hosted renderer likewise needs to reload this URL once after deployment. Score data continues to refresh automatically thereafter.
+
+High-school scores now use the shared scheduled publisher described in SCOREBOARD.md. Its current five-minute target supersedes the older Cloudflare MaxPreps collection interval documented below.
+
 ## What runs automatically
 
 Cloudflare Worker `mississippi-sports-broadcast` runs every five minutes, independently of a browser or vMix. It selects sources whose refresh interval has elapsed, prioritizes news, then processes up to six other sources in oldest-attempt order. Data is stored in D1 `mississippi-sports-broadcast`. Pages uses its `BROADCAST` service binding to serve `/api/broadcast`.
