@@ -9,6 +9,13 @@ document.body.classList.toggle('light',query.get('theme')==='light');
 const title=query.get('title')?.slice(0,70)??(settings.group==='custom'?'YOUR TEAMS':GROUPS[settings.group]?.label??'Mississippi');
 document.querySelector('#group-label').textContent=title;
 document.title=`${title} · Score Wire`;
+const sponsor=GROUPS[settings.group]?.sponsor;
+if(sponsor){
+  document.body.classList.add('has-sponsor');
+  const link=document.createElement('a');link.className='wire-sponsor';link.href=new URL(sponsor.image,here).href;link.target='_blank';link.rel='noopener';link.title='View sponsor at full size';
+  const image=document.createElement('img');image.src=link.href;image.alt=sponsor.alt;image.width=500;image.height=500;link.append(image);
+  document.querySelector('#day-label').before(link);
+}
 const viewport=document.querySelector('#viewport'),track=document.querySelector('#track'),statusEl=document.querySelector('#feed-status');
 const pauseButton=document.querySelector('#pause'),motion=matchMedia('(prefers-reduced-motion: reduce)');
 const speed=Math.min(110,Math.max(15,Number(query.get('speed'))||45));

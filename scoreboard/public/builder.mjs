@@ -13,7 +13,7 @@ function params(){const p=new URLSearchParams({group,sport:$('sport').value,stat
 function base(){try{const u=new URL($('base-url').value);return /^https?:$/.test(u.protocol)?u.href.replace(/\/$/,''):here.href.replace(/\/$/,'');}catch{return here.href.replace(/\/$/,'');}}
 function embedCode(){
   const p=params(),url=base()+'/embed?'+p.toString();
-  $('iframe-code').value=`<iframe src="${url.replaceAll('&','&amp;')}" title="Mississippi sports scores" width="100%" height="144" style="border:0;display:block;" loading="eager"></iframe>`;
+  $('iframe-code').value=`<iframe src="${url.replaceAll('&','&amp;')}" title="Mississippi sports scores" width="100%" height="${GROUPS[group]?.sponsor?264:144}" style="border:0;display:block;" loading="eager"></iframe>`;
   p.set('mode','vmix');$('vmix-url').value=base()+'/embed?'+p.toString();$('open-vmix').href=here.href+'embed?'+p.toString();
 }
 function update(){
@@ -21,6 +21,7 @@ function update(){
   document.querySelectorAll('.preset').forEach(b=>{b.classList.toggle('active',b.dataset.group===group);b.setAttribute('aria-pressed',String(b.dataset.group===group));});
   $('group-description').textContent=group==='statewide'?'All available Mississippi varsity game listings, across sports.':group==='custom'?'Choose the schools that belong in this feed.':GROUPS[group].teams.join(' · ');
   $('speed-label').textContent=$('speed').value+' px/sec';
+  $('preview').height=GROUPS[group]?.sponsor?'264':'144';
   const src=here.href+'embed?'+params().toString();if($('preview').getAttribute('src')!==src)$('preview').src=src;
   $('preview-caption').textContent=(GROUPS[group]?.label??'Custom teams')+' · '+($('date-mode').value==='today'?'Today':$('date-mode').value==='week'?'Today + next 7 days':selectedDate());
   embedCode();renderGames();load();
