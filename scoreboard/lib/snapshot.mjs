@@ -26,7 +26,7 @@ export async function fetchSnapshot(request=(...args)=>globalThis.fetch(...args)
   if(last&&Date.now()-lastFetch<60000)return {snapshot:last,offline:false};
   if(pending)return pending;
   pending=(async()=>{try{
-    const response=await request(SNAPSHOT_URL,{signal:AbortSignal.timeout(12000),headers:{Accept:'application/json'}});
+    const response=await request(SNAPSHOT_URL+'?minute='+Math.floor(Date.now()/60000),{signal:AbortSignal.timeout(12000),headers:{Accept:'application/json'}});
     if(!response.ok)throw Error(`Snapshot HTTP ${response.status}`);
     const text=await response.text();if(text.length>5000000)throw Error('Snapshot too large');
     const value=JSON.parse(text);if(value.schemaVersion!==1||!Array.isArray(value.days))throw Error('Invalid snapshot');

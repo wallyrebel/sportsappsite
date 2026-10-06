@@ -8,7 +8,7 @@ export const onRequestGet: PagesFunction<{BROADCAST:Fetcher}> = async ({env}) =>
     const response=await env.BROADCAST.fetch('https://broadcast.internal/api/broadcast');
     if(!response.ok)return response;
     const data=await response.json();
-    try{const {snapshot}=await fetchSnapshot();return Response.json(withHighSchoolScores(data,snapshot),{headers:{'Cache-Control':'no-store','Access-Control-Allow-Origin':'*'}});}
+    try{const {snapshot,offline}=await fetchSnapshot();return Response.json(withHighSchoolScores(data,snapshot,new Date(),offline),{headers:{'Cache-Control':'no-store','Access-Control-Allow-Origin':'*'}});}
     catch{return Response.json(data,{headers:{'Cache-Control':'no-store'}});}
   }
   catch{return Response.json({error:'Broadcast collector is temporarily unavailable'},{status:503,headers:{'Cache-Control':'no-store'}});}

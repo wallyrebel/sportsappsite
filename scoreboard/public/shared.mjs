@@ -49,5 +49,5 @@ export function deduplicate(games) {
     if(!old || (priority[game.status]??0)>(priority[old.status]??0) ||
       ((priority[game.status]??0)===(priority[old.status]??0)&&Date.parse(game.observedAt)>Date.parse(old.observedAt))) result.set(key,game);
   }
-  return [...result.values()].sort((a,b)=>({live:0,scheduled:1,final:2,postponed:3,cancelled:4,unknown:5}[a.status]??5)-({live:0,scheduled:1,final:2,postponed:3,cancelled:4,unknown:5}[b.status]??5)||a.sport.localeCompare(b.sport)||(a.startMinutes??1440)-(b.startMinutes??1440)||a.teams[0].name.localeCompare(b.teams[0].name));
+  return [...result.values()].sort((a,b)=>({live:0,scheduled:1,final:2,postponed:3,cancelled:4,unknown:5}[a.status]??5)-({live:0,scheduled:1,final:2,postponed:3,cancelled:4,unknown:5}[b.status]??5)||a.date.localeCompare(b.date)||(a.startMinutes??1440)-(b.startMinutes??1440)||a.sport.localeCompare(b.sport)||a.teams[0].name.localeCompare(b.teams[0].name));
 }

@@ -20,13 +20,13 @@ function update(){
   $('group-description').textContent=group==='statewide'?'All available Mississippi varsity game listings, across sports.':group==='custom'?'Choose the schools that belong in this feed.':GROUPS[group].teams.join(' · ');
   $('speed-label').textContent=$('speed').value+' px/sec';
   const src=here.href+'embed?'+params().toString();if($('preview').getAttribute('src')!==src)$('preview').src=src;
-  $('preview-caption').textContent=(GROUPS[group]?.label??'Custom teams')+' · '+($('date-mode').value==='today'?'Today':selectedDate());
+  $('preview-caption').textContent=(GROUPS[group]?.label??'Custom teams')+' · '+($('date-mode').value==='today'?'Today':$('date-mode').value==='week'?'Today + next 7 days':selectedDate());
   embedCode();renderGames();load();
 }
 function node(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
 function renderGames(){
   if(!data||data.date!==selectedDate())return;
-  const games=filterGames(data.games,config());$('games-heading').textContent=($('date-mode').value==='today'?'Today’s games':selectedDate()+' games');$('game-count').textContent=games.length+' games';$('games').replaceChildren();
+  const games=filterGames(data.games,config());$('games-heading').textContent=($('date-mode').value==='today'?'Today’s games':$('date-mode').value==='week'?'Today + next 7 days':selectedDate()+' games');$('game-count').textContent=games.length+' games';$('games').replaceChildren();
   if(!games.length)$('games').append(node('p','empty-state',data.sources.every(s=>s.state==='unavailable')?'Score sources are unavailable. See the source status below.':'No reported games for this selection. Try another date or group.'));
   for(const g of games){const a=node('a','listing');a.href=g.url;a.target='_blank';a.rel='noopener noreferrer';const head=node('div','listing-head');head.append(node('span','',g.sport),node('span',g.status,g.stale?'Delayed':g.status==='scheduled'?(g.startLabel??'Time TBA'):g.status.toUpperCase()));a.append(head);for(const t of g.teams){const row=node('div','listing-team');row.append(node('span','',t.name),node('strong','',t.score??'—'));a.append(row);}a.append(node('span','listing-source',g.date+' · '+g.source));$('games').append(a);}
   $('sources').replaceChildren();for(const s of data.sources){const row=node('div','source-row');const a=node('a','',s.name);a.href=s.url;a.target='_blank';a.rel='noopener noreferrer';row.append(a,node('span',s.state,s.state==='ok'?'Available':s.state==='stale'?'Delayed':'Unavailable'),node('span','',s.checkedAt?new Date(s.checkedAt).toLocaleTimeString('en-US',{timeZone:'America/Chicago'}):'No data'));if(s.error)row.title=s.error;$('sources').append(row);}
