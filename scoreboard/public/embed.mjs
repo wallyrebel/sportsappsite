@@ -1,4 +1,4 @@
-import {GROUPS,centralDate,filterGames,validDate} from './shared.mjs?v=20261006-statewide';
+import {GROUPS,centralDate,filterGames,validDate} from './shared.mjs?v=20261007-results';
 const here=new URL('.',import.meta.url);
 const query=new URLSearchParams(location.search);
 const settings={group:query.get('group')??'statewide',teams:(query.get('teams')??'').split(',').map(s=>s.trim()).filter(Boolean),
@@ -24,8 +24,8 @@ function date(){return validDate(query.get('date'))?query.get('date'):centralDat
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function scoreCard(game){
   const card=el('a','game-card');card.href=game.url;card.target='_blank';card.rel='noopener noreferrer';
-  const meta=el('div','game-meta');meta.append(el('span','sport-label',game.sport+(query.get('days')==='8'?' · '+game.date.slice(5):'')));
-  const label=game.stale?'DELAYED':game.status==='live'?`LIVE${game.teams.every(t=>t.score===null)?' · SCORE PENDING':game.detail&&!/^(LIVE|in progress)$/i.test(game.detail)?' · '+game.detail:''}`:
+  const meta=el('div','game-meta');meta.append(el('span','sport-label',game.sport+' · '+game.date.slice(5)));
+  const label=game.stale?(game.status==='final'?'FINAL · DELAYED':'DELAYED'):game.status==='live'?`LIVE${game.teams.every(t=>t.score===null)?' · SCORE PENDING':game.detail&&!/^(LIVE|in progress)$/i.test(game.detail)?' · '+game.detail:''}`:
     game.status==='final'?'FINAL':game.status==='scheduled'?(game.startLabel??'TIME TBA'):game.status.toUpperCase();
   meta.append(el('span',`game-status ${game.stale?'delayed':game.status}`,label));card.append(meta);
   for(const team of game.teams){const row=el('div','team-row');row.append(el('span','team-name',team.name),el('strong','team-score',team.score===null?'—':String(team.score)));card.append(row);}
@@ -59,9 +59,9 @@ function render(data){
     else{const group=el('div','wire-group');games.forEach(g=>group.append(scoreCard(g)));track.append(group);animate();}
   }
   const unavailable=data.sources.filter(s=>s.state==='unavailable').length,stale=data.sources.filter(s=>s.state==='stale').length;
-  const checked=data.sources.filter(s=>s.checkedAt).map(s=>Date.parse(s.checkedAt));
+  const checked=data.sources.filter(s=>s.checkedAt&&s.date===data.date).map(s=>Date.parse(s.checkedAt));
   const time=checked.length?new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',minute:'2-digit'}).format(new Date(Math.min(...checked))):null;
-  statusEl.textContent=`${games.length} games${time?' · Sources checked '+time:''}${stale?' · Delayed data':''}${unavailable?' · Partial coverage':''}`;
+  statusEl.textContent=`${games.length} games · ${games.filter(g=>g.status==='final').length} finals${time?' · Today checked '+time:''}${stale?' · Delayed data':''}${unavailable?' · Partial coverage':''}`;
   statusEl.title=`${unavailable} sources unavailable; ${stale} delayed. Scores depend on reporting by the sources.`;
   document.querySelector('#day-label').textContent=new Intl.DateTimeFormat('en-US',{timeZone:'UTC',month:'short',day:'numeric'}).format(new Date(data.date+'T12:00:00Z'))+' · '+(settings.sport==='all'?'ALL SPORTS':'SCORES');
 }
@@ -70,7 +70,8 @@ async function refresh(){
   const selectedDate=date();
   if(activeDate!==selectedDate){activeDate=selectedDate;lastData=null;signature='';animation?.cancel();track.replaceChildren(el('p','wire-empty','Loading games…'));}
   try{
-    const response=await fetch(`${here.href}api/scores?date=${selectedDate}&days=${query.get('days')==='8'?'8':'1'}`,{cache:'no-store',signal:AbortSignal.timeout(45000)});
+    const past=query.get('past')??(validDate(query.get('date'))?'0':'1');
+    const response=await fetch(`${here.href}api/scores?date=${selectedDate}&days=${query.get('days')==='8'?'8':'1'}&past=${encodeURIComponent(past)}`,{cache:'no-store',signal:AbortSignal.timeout(45000)});
     const data=await response.json();if(!Array.isArray(data.games)||!Array.isArray(data.sources))throw Error('Unavailable');
     lastData=data;lastSuccess=Date.now();render(data);
   }catch{

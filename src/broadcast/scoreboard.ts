@@ -1,10 +1,10 @@
-import {mergeData,centralDate,shiftDate,type BroadcastData,type Source,type Snapshot,type Game} from './model';
+import {mergeData,centralDate,type BroadcastData,type Source,type Snapshot,type Game} from './model';
 // @ts-ignore shared pure JavaScript is also used by the portable embeds.
 import {selectSnapshot} from '../../scoreboard/lib/snapshot.mjs';
 interface ScoreGame {id:string;sport:string;sportKey:string;date:string;status:string;startLabel:string|null;detail:string;url:string;observedAt:string;stale:boolean;teams:{name:string;score:number|null}[];}
 interface ScoreSource {name:string;date:string;url:string;checkedAt:string|null;state:string;error:string|null;}
 export function withHighSchoolScores(data:BroadcastData,snapshot:unknown,now=new Date(),offline=false):BroadcastData{
-  const today=centralDate(now),selected=selectSnapshot(snapshot,{date:shiftDate(today,-1),days:9,now:now.getTime(),offline});
+  const today=centralDate(now),selected=selectSnapshot(snapshot,{date:today,days:8,past:1,now:now.getTime(),offline});
   const mapped:Game[]=selected.games.map((g:ScoreGame)=>({id:g.id,sourceId:'scoreboard-'+g.sportKey,source:'MaxPreps',sourceUrl:g.url,observedAt:g.observedAt,
     level:'High school',sport:g.sport,date:g.date,time:g.startLabel??'Time TBA',teams:g.teams.map(t=>t.name) as [string,string],
     scores:g.teams.every(t=>t.score!==null)?g.teams.map(t=>t.score) as [number,number]:null,

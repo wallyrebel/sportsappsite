@@ -80,8 +80,12 @@ export class FeedCollector {
         const entry={data,url,checkedAt:observedAt,stale:false,error:null,nextCheck:this.now()+(hasLive?Math.min(ttl,60_000):ttl)};
         this.cache.set(key,entry);return entry;
       } catch(error) {
-        const recent=old?.checkedAt&&this.now()-Date.parse(old.checkedAt)<Math.max(60*60*1000,ttl*4);
-        const entry={data:recent?old.data:{games:[]},url,checkedAt:recent?old.checkedAt:null,stale:true,
+        // Preserve completed results during outages; expire live observations independently.
+        const games=(old?.data?.games??[]).filter(g=>{
+          const age=this.now()-Date.parse(g.observedAt??old.checkedAt);
+          return Number.isFinite(age)&&age>=-60000&&age<=(g.status==='live'?3600000:g.status==='scheduled'?86400000:7*86400000);
+        });
+        const entry={data:{...old?.data,games},url,checkedAt:old?.checkedAt??null,stale:true,
           error:String(error.message).slice(0,160),nextCheck:this.now()+(/HTTP 404/.test(error.message)?12*60*60*1000:Math.max(ttl,60_000))};
         this.cache.set(key,entry);return entry;
       } finally {this.pending.delete(key);}

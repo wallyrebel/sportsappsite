@@ -13,3 +13,13 @@ test('broadcast includes current high-school scores with correct orientation and
   const game=result.games.find(g=>g.id==='hs')!;assert.equal(game.status,'in-progress');assert.deepEqual(game.scores,[0,2]);assert.equal(game.stale,false);
   assert.equal(withHighSchoolScores(data,snapshot,now,true).games.find(g=>g.id==='hs')!.stale,true);
 });
+
+test('broadcast includes yesterday finals without presenting yesterday unresolved games as live',()=>{
+  const data:BroadcastData={generatedAt:stamp,games:[college],stories:[],sources:[source],gaps:[],conflicts:[]};
+  const sample={id:'hs-final',source:'MaxPreps',url:'https://www.maxpreps.com/ms/',observedAt:stamp,date:'2026-10-05',sport:'Volleyball',sportKey:'volleyball',status:'final',teams:[{name:'Kossuth',score:0},{name:'Corinth',score:3}]};
+  const health={name:'Volleyball',url:'https://www.maxpreps.com/ms/volleyball/scores/',checkedAt:stamp,state:'ok'};
+  const snapshot={schemaVersion:1,generatedAt:stamp,lastAttempt:stamp,days:[{date:'2026-10-05',sources:[health],games:[sample,{...sample,id:'old-live',status:'live'}]},{date:'2026-10-06',sources:[health],games:[]}]};
+  const result=withHighSchoolScores(data,snapshot,now);
+  assert.deepEqual(result.games.find(g=>g.id==='hs-final')?.scores,[0,3]);
+  assert.equal(result.games.some(g=>g.id==='old-live'),false);
+});

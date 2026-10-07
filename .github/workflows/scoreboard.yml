@@ -29,7 +29,7 @@ jobs:
           if git fetch origin scoreboard-data; then
             git show FETCH_HEAD:scoreboard.json > .scoreboard-data/scoreboard.json
           fi
-      - name: Collect current games and upcoming schedules
+      - name: Collect current games, recent finals, and upcoming schedules
         id: collect
         continue-on-error: true
         run: node scoreboard/scripts/collect.mjs .scoreboard-data/scoreboard.json
@@ -53,5 +53,5 @@ jobs:
       - name: Report unavailable upstream access
         if: steps.collect.outcome == 'failure'
         run: |
-          echo 'Current source checks failed; see the source-health panel. Do not treat old scores as live.'
+          echo '::error::Current source checks failed. The run summary lists the upstream errors. Saved finals remain available; current scores may be delayed until the next successful scheduled refresh.'
           exit 1

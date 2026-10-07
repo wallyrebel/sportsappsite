@@ -14,6 +14,8 @@ Paste this into a WordPress Custom HTML block or custom site's HTML:
 
 The production URL is deployed. No WordPress plugin or script permission is needed beyond allowing an iframe in the HTML block.
 
+Rolling embeds include yesterday's reported finals automatically, followed by today's games and optional upcoming schedules. The statewide and Alcorn sponsor layouts use height `264`; other presets use `144`. Existing embed URLs receive recent finals through the API without replacing their iframe codes. Live games appear first, then completed results (newest first), then upcoming games.
+
 For vMix, add a Web Browser input at 1920 × 1080:
 
 ```text
@@ -28,7 +30,8 @@ Parameters:
 | --- | --- |
 | `group` | `statewide`, `desoto`, `tippah`, `alcorn`, `custom` |
 | `teams` | Comma-separated school names for `group=custom` |
-| `days` | `1` (today; default), `8` (today + next seven days) |
+| `days` | `1` (today; default), `8` (today + next seven days); recent finals are included separately |
+| `past` | `1` by default for rolling feeds: include yesterday's finals. `0` means strictly the chosen date window; values up to `7` include retained finals from more prior days. |
 | `date` | Optional fixed YYYY-MM-DD; omit for automatic Central-time date rollover |
 | `sport` | `all`, or a key from `scoreboard/public/shared.mjs` |
 | `status` | `all`, `scheduled`, `live`, `final` |
@@ -50,6 +53,10 @@ Today is refreshed each run. Tomorrow through day seven is refreshed every six h
 The source-health panel exposes every sport's last successful check. Today's data becomes delayed after 15 minutes without a successful source check. Live scores disappear after one hour; old scheduled entries stop appearing as upcoming after the Central-time day ends. A score of zero remains zero; unknown scores remain dashes. A game is live only when the source explicitly says so. Provider records are not confused with game scores.
 
 ## Coverage and the linked MCP project
+
+Source access can fail temporarily with HTTP 403. The collector preserves completed results for up to seven days while expiring live observations after one hour; it keeps the last successful observation time and reports the outage. A run with no successful current source checks remains failed, even if its retained results were published successfully. The workflow summary lists source errors and the count of retained yesterday finals. The next scheduled run checks source access again.
+
+The persisted cache uses a thirty-minute interval for yesterday, a three-minute interval for today (one minute for explicitly live games), and six hours for future schedules. Moving a date from future to today or from today to yesterday recalculates its refresh deadline.
 
 The adapter reads the public Mississippi scoreboards at MaxPreps. It covers available varsity head-to-head games across sports, not just football. Nine currently compatible categories are baseball, boys/girls basketball, football, girls flag football, boys/girls soccer, softball, and volleyball. Other configured sport routes are checked and their unavailable formats are shown. Meet-based sports and unreported games are coverage gaps. Schools and scorekeepers control how promptly scores are submitted; polling cannot create an unreported live score.
 
