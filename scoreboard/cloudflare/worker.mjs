@@ -1,7 +1,7 @@
 import {scoresResponse} from '../lib/snapshot.mjs';
 export default {async fetch(request,env){
   const path=new URL(request.url).pathname;
-  if(path==='/api/scores')return scoresResponse(request);
+  if(path==='/api/scores'||path==='/scoreboard/api/scores')return scoresResponse(request);
   if(path==='/health')return Response.json({ok:true});
   const response=await env.ASSETS.fetch(request),headers=new Headers(response.headers);
   headers.delete('X-Frame-Options');

@@ -70,7 +70,7 @@ The [maxpreps-mcp project](https://github.com/chrischall/maxpreps-mcp) helps dis
 4. Check `/scoreboard/api/scores`, `/scoreboard/`, and `/api/broadcast`. Confirm game dates, scores, and advancing `checkedAt` timestamps.
 5. Merge to the default branch to enable the five-minute schedule. Scheduled workflow delays or provider access failures remain visible in the source-health panel.
 
-An optional standalone Worker uses `npm run deploy:scoreboard` and serves the same interface at its own root. The Pages route and Worker share the feed reader. No new database or paid service is provisioned.
+The score API is also deployed directly with `npm run deploy:scoreboard`. Its Worker route is `mississippisportsapp.com/scoreboard/api/scores*`, so API fixes can be released independently of a full Pages website build. The same Worker serves the portable interface at its workers.dev root. Deploy this Worker whenever changing the API or shared feed reader; the Pages function remains the equivalent fallback if the route is removed. No new database or paid service is provisioned.
 
 The separate watch webpage uses `workers/watch-scoreboard/` to insert the same ticker beneath its player. Its small route Worker calls the existing static player through a service binding. See that directory’s README for deployment and rollback.
 
